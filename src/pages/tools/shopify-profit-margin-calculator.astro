@@ -35,11 +35,11 @@ const breadcrumbJsonLd = {
 const faqs = [
   {
     q: 'How do I calculate profit margin on Shopify?',
-    a: 'Profit margin = (price − all costs) ÷ price. All costs include product cost, shipping you pay, payment processing (typically 2.9% + $0.30), your plan transaction fee if you do not use Shopify Payments, and any ad spend you attribute per order.',
+    a: 'Profit margin = (price − all costs) ÷ price. All costs include product cost, shipping you pay, payment processing (2.9% + $0.30 on Basic, 2.7% on Grow, 2.5% on Advanced for US online sales), your plan transaction fee if you do not use Shopify Payments, and any ad spend you attribute per order.',
   },
   {
     q: 'Do I pay transaction fees if I use Shopify Payments?',
-    a: 'No. If you use Shopify Payments in a supported country, the additional transaction fee for your plan (2% on Basic, 1% on Shopify, 0.5% on Advanced) is waived — you only pay card processing rates. Using a third-party gateway like PayPal for all orders keeps the extra fee.',
+    a: 'No. If you use Shopify Payments in a supported country, the additional transaction fee for your plan (2% on Basic, 1% on Grow, 0.5% on Advanced) is waived — you only pay card processing rates. Using a third-party gateway like PayPal for all orders keeps the extra fee.',
   },
   {
     q: 'What is a good profit margin for a Shopify store?',
@@ -131,7 +131,11 @@ const faqJsonLd = {
                 <label for="plan">Plan</label>
                 <div class="input-shell select-shell">
                   <select id="plan">
-                    {shopifyPlans.map((p) => <option value={p.txnPct}>{p.label}</option>)}
+                    {shopifyPlans.map((p) => (
+                      <option value={p.id} data-txn={p.txnPct} data-proc={p.procPct} data-flat={p.procFlat}>
+                        {p.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -164,7 +168,7 @@ const faqJsonLd = {
                   <span class="affix">$</span>
                   <input type="number" id="proc-flat" value={shopifyProcessingFlat} min="0" step="0.01" inputmode="decimal" />
                 </div>
-                <span class="hint">US online rate: 2.9% + $0.30</span>
+                <span class="hint">US online standard rates: Basic 2.9% · Grow 2.7% · Advanced 2.5% + $0.30</span>
               </div>
             </div>
           </div>
@@ -220,11 +224,12 @@ const faqJsonLd = {
         <p>
           A Shopify order loses money to fees in two separate places, and
           confusing them is the most common pricing mistake. <strong>Payment
-          processing</strong> (card rates, ~2.9% + $0.30 in the US) is charged
-          on every transaction by your payment provider. The <strong>plan
-          transaction fee</strong> (2% / 1% / 0.5% depending on plan) is only
-          charged when you <em>don't</em> use Shopify Payments — for example
-          when PayPal or a regional gateway processes the order.
+          processing</strong> (card rates, 2.9% / 2.7% / 2.5% + $0.30 in the US
+          by plan) is charged on every transaction by your payment provider.
+          The <strong>plan transaction fee</strong> (2% / 1% / 0.5% depending
+          on plan) is only charged when you <em>don't</em> use Shopify
+          Payments — for example when PayPal or a regional gateway processes
+          the order.
         </p>
 
         <h3>Profit per order</h3>
@@ -326,7 +331,8 @@ const faqJsonLd = {
     const ads = read('ads');
     const procPct = Math.min(read('proc-pct'), 100);
     const procFlat = read('proc-flat');
-    const planTxnPct = parseFloat($('plan').value) || 0;
+    const selected = $('plan').selectedOptions[0] as HTMLOptionElement;
+    const planTxnPct = parseFloat(selected?.dataset.txn ?? '0') || 0;
     const sp = $('sp').checked;
     const txnPct = sp ? 0 : planTxnPct;
 
@@ -380,8 +386,31 @@ const faqJsonLd = {
     lastProfit = profit;
   }
 
+  // Track whether the user manually edited the processing fields —
+  // if so, switching plans won't clobber their custom rates.
+  let procTouched = false;
+
+  function syncPlanRates() {
+    const selected = $('plan').selectedOptions[0] as HTMLOptionElement;
+    if (!selected) return;
+    if (procTouched) return;
+    $('proc-pct').value = selected.dataset.proc ?? '2.9';
+    $('proc-flat').value = selected.dataset.flat ?? '0.3';
+  }
+
   ['price', 'cost', 'shipping', 'ads', 'proc-pct', 'proc-flat', 'plan', 'sp'].forEach((id) =>
     $(id).addEventListener('input', recalc)
+  );
+
+  $('plan').addEventListener('change', () => {
+    syncPlanRates();
+    recalc();
+  });
+
+  ['proc-pct', 'proc-flat'].forEach((id) =>
+    $(id).addEventListener('input', () => {
+      procTouched = true;
+    })
   );
 
   const copyBtn = document.getElementById('copy-btn')!;

@@ -47,7 +47,7 @@ const faqs = [
   },
   {
     q: 'Are the fee defaults current?',
-    a: 'They are editable estimates based on published US fee schedules. Referral fees and FBA fulfillment fees change regularly and vary by category and size tier — always verify exact rates in Seller Central (Revenue Calculator) before committing to inventory.',
+    a: 'They are editable estimates based on published US fee schedules, last verified August 2026 against Amazon\'s 2026 US fee changes (effective January 15, 2026). Since 2026, fulfillment fees vary by size tier AND product price band (under $10 / $10–50 / over $50) — always verify exact rates in Seller Central (Revenue Calculator) before committing to inventory.',
   },
 ];
 
@@ -151,7 +151,7 @@ const faqJsonLd = {
                   <span class="affix">$</span>
                   <input type="number" id="fbafee" value={fbaFeeDefault} min="0" step="0.01" inputmode="decimal" />
                 </div>
-                <span class="hint">By size tier — check Seller Central</span>
+                <span class="hint">Varies by size tier &amp; price band — check Seller Central</span>
               </div>
               <div class="field">
                 <label for="storage">Monthly storage per unit</label>

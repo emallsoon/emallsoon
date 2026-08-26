@@ -6,6 +6,11 @@
  * tool page carries a "verify current rates" disclaimer. Update the numbers
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
+ *
+ * Last verified against official sources: 2026-08-26
+ *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15)
+ *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced
+ *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
@@ -24,7 +29,12 @@ export const referralPresets: ReferralPreset[] = [
 /** default referral fee percentage */
 export const referralDefault = 15;
 
-/** default FBA fulfillment fee per unit (US, standard size, approx.) */
+/**
+ * Default FBA fulfillment fee per unit (US, standard size, approx.).
+ * 2026 rate card varies by size tier AND product price band
+ * (under $10 / $10–50 / over $50) — small standard runs roughly
+ * $2.56–$3.84, large standard roughly $2.91–$5.66 per unit.
+ */
 export const fbaFeeDefault = 5.5;
 
 /* ---------- Shopify ---------- */
@@ -33,15 +43,18 @@ export interface ShopifyPlan {
   label: string;
   /** transaction fee % when NOT using Shopify Payments */
   txnPct: number;
+  /** US Shopify Payments online standard card rate (official, per plan) */
+  procPct: number;
+  procFlat: number;
 }
 
 export const shopifyPlans: ShopifyPlan[] = [
-  { id: 'basic', label: 'Basic — 2% transaction fee', txnPct: 2 },
-  { id: 'shopify', label: 'Shopify — 1% transaction fee', txnPct: 1 },
-  { id: 'advanced', label: 'Advanced — 0.5% transaction fee', txnPct: 0.5 },
+  { id: 'basic', label: 'Basic — 2% transaction fee', txnPct: 2, procPct: 2.9, procFlat: 0.3 },
+  { id: 'grow', label: 'Grow — 1% transaction fee', txnPct: 1, procPct: 2.7, procFlat: 0.3 },
+  { id: 'advanced', label: 'Advanced — 0.5% transaction fee', txnPct: 0.5, procPct: 2.5, procFlat: 0.3 },
 ];
 
-/** US Shopify Payments online credit card rate */
+/** Default processing prefill (Basic plan, US online standard card rate) */
 export const shopifyProcessingPct = 2.9;
 export const shopifyProcessingFlat = 0.3;
 
