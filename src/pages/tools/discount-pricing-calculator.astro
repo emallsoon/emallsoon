@@ -1,0 +1,618 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+
+const tool = tools.find((t) => t.slug === 'discount-pricing-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'Discount Pricing Calculator — % Off, BOGO, Threshold Deals | emallsoon';
+const description =
+  'Free discount pricing calculator for sellers. Price percentage-off, BOGO, and spend-threshold deals against your real margin, and find the maximum discount you can afford. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Discount Pricing Calculator',
+  url: 'https://emallsoon.com/tools/discount-pricing-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free discount pricing calculator: percentage-off, BOGO, and spend-threshold deals priced against real margin, with maximum affordable discount.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Discount Pricing Calculator', item: 'https://emallsoon.com/tools/discount-pricing-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'How much discount can I afford?',
+    a: 'Your maximum break-even discount equals your margin: a product with a 40% margin can absorb at most a 40% discount before it sells at a loss. But "break even" is not the goal — decide on a minimum acceptable margin first, then discount down to that line, not past it. The calculator shows profit per unit after the discount so you can pick the deepest deal that still pays you.',
+  },
+  {
+    q: 'Why does a 20% discount hurt so much?',
+    a: 'Because a discount comes entirely out of your margin, not out of the price proportionally. On a product with a 30% margin, a 20% discount removes two-thirds of your profit per unit — you now need roughly 3x the sales volume just to earn the same total profit. This asymmetry is the single most under-estimated number in promo planning.',
+  },
+  {
+    q: 'How do I calculate BOGO effective discount?',
+    a: 'Buy one get one free is a 50% effective discount, not 100%: you still collect payment for one of the two units. The formula is (free units ÷ total units) × 100. Buy 2 get 1 free is 33.3%, buy 3 get 1 free is 25%. The calculator works out the effective price per unit and effective discount for any buy/get combination.',
+  },
+  {
+    q: 'Are threshold deals better than percentage off?',
+    a: 'Threshold deals ("$20 off orders over $100") do two things a flat percentage cannot: they raise average order value, and the effective discount shrinks as customers spend more — spend $180 on that same deal and the effective discount is only 11%. They protect margin while growing basket size, which is why marketplaces push them during big sale events.',
+  },
+  {
+    q: 'What is a good discount for Black Friday?',
+    a: 'Most marketplaces expect 20–40% during peak events, but that range only works on products with healthy margins or strategic purposes (clearance, customer acquisition, review velocity). Run your numbers through the calculator at the deepest discount you plan: if the profit per unit turns red, the deal needs a cost reduction, a higher anchor price, or a threshold structure instead of a flat percentage.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Discount Pricing Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Pricing · free · no signup</p>
+        <h1>Discount Pricing Calculator</h1>
+        <p class="lede">
+          A discount is a margin decision, not a marketing one. Price
+          percentage-off, BOGO, and spend-threshold deals against what your
+          product actually costs you — and see the maximum you can afford to
+          give before the deal stops paying you.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="discount-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Deal type</p>
+            <div class="mode-tabs" role="tablist" aria-label="Deal type">
+              <button type="button" class="mode-tab" data-mode="pct" role="tab" aria-selected="true">% Off</button>
+              <button type="button" class="mode-tab" data-mode="bogo" role="tab" aria-selected="false">BOGO</button>
+              <button type="button" class="mode-tab" data-mode="threshold" role="tab" aria-selected="false">Threshold</button>
+            </div>
+          </div>
+
+          <div class="form-sec" id="sec-pct">
+            <p class="fs-title">Percentage off</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="p-price">Original price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="p-price" value="60.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="p-off">Discount</label>
+                <div class="input-shell">
+                  <input type="number" id="p-off" value="20" min="0" max="100" step="0.5" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+              </div>
+              <div class="field span-2">
+                <label for="p-cost">Product cost <span class="opt">(optional — for margin check)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="p-cost" value="25.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Landed cost incl. fees — leave 0 to skip margin math</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec" id="sec-bogo" hidden>
+            <p class="fs-title">Buy X, get Y free or discounted</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="b-price">Unit price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="b-price" value="45.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="b-cost">Unit cost <span class="opt">(optional)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="b-cost" value="18.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="b-buy">Buy quantity</label>
+                <div class="input-shell">
+                  <input type="number" id="b-buy" value="2" min="1" step="1" inputmode="numeric" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="b-get">Get quantity</label>
+                <div class="input-shell">
+                  <input type="number" id="b-get" value="1" min="1" step="1" inputmode="numeric" />
+                </div>
+              </div>
+              <div class="field span-2">
+                <label for="b-off">Discount on the "get" units</label>
+                <div class="input-shell">
+                  <input type="number" id="b-off" value="100" min="0" max="100" step="1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">100% = free · 50% = half price</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec" id="sec-threshold" hidden>
+            <p class="fs-title">Spend threshold ($ off)</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="t-value">Order value</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="t-value" value="120.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">What the customer carts up</span>
+              </div>
+              <div class="field">
+                <label for="t-spend">Spend threshold</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="t-spend" value="100.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Deal applies above this cart</span>
+              </div>
+              <div class="field span-2">
+                <label for="t-off">Amount off</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="t-off" value="20.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">Deal Receipt</p>
+                <p class="rh-sub" id="r-sub">per sale · live</p>
+              </div>
+
+              <div class="rline" id="l-list"><span class="rl-label" id="t-list">List price</span><span class="rl-dots"></span><span class="rl-val" id="r-list">$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label" id="t-ded">Discount</span><span class="rl-dots"></span><span class="rl-val" id="r-ded">−$0.00</span></div>
+              <div class="rline rline--total">
+                <span class="rl-label" id="t-pay">Customer pays</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-pay" aria-live="polite">$0.00</span>
+              </div>
+
+              <div class="rline rline--meta" id="l-eff"><span class="rl-label">Effective per unit</span><span class="rl-dots"></span><span class="rl-val" id="r-eff">$0.00</span></div>
+              <div class="rline rline--meta" id="l-effpct"><span class="rl-label">Effective discount</span><span class="rl-dots"></span><span class="rl-val" id="r-effpct">0%</span></div>
+              <div class="rline rline--meta" id="l-margin"><span class="rl-label">Margin after deal</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+
+              <div class="rline rline--total" id="l-profit">
+                <span class="rl-label" id="t-profit">Profit / unit</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0.00</span>
+              </div>
+
+              <div class="rline rline--meta" id="l-vol">
+                <span class="rl-label">Volume needed to match</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val" id="r-vol">1.0x</span>
+              </div>
+
+              <div class="verdict pos" id="r-verdict">deal still pays ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Margin math is only as good as your cost input — include
+                platform fees and shipping in cost for a true picture.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>Discount math sellers get wrong</h2>
+        <p>
+          The most expensive sentence in e-commerce is "let's just run 20% off."
+          A percentage discount does not come out of your price — it comes out
+          of your <strong>margin</strong>, and margin is a much smaller pool.
+          On a product with a 30% margin, a 20% discount removes two-thirds of
+          the profit per unit. You would need roughly three times the sales
+          volume just to earn the same money as before the promotion.
+        </p>
+        <p>
+          This is why discount decisions belong to a calculator, not a gut
+          feeling. The three deal structures below all move money, but they
+          move it differently — and knowing the effective discount of each is
+          what separates a promotion that grows profit from one that just
+          grows revenue.
+        </p>
+
+        <h3>1. Percentage off — the margin trap</h3>
+        <p>
+          The formula is simple: sale price = price × (1 − discount%). The
+          insight is what it does to profit. Profit per unit after the deal is
+          sale price − cost, and every dollar of discount subtracts from that
+          profit dollar-for-dollar:
+        </p>
+        <div class="formula-box">
+          profit_after = price × (1 − discount%) − cost
+        </div>
+        <p>
+          Your <strong>maximum affordable discount</strong> is your margin
+          itself — at a 40% margin, a 40% discount is the exact point where the
+          product sells for cost. Working backwards from a minimum acceptable
+          margin is the professional way to set promo depth: if you want to
+          keep at least 15 points of margin on a $60 product that costs $25,
+          the deepest cut you can offer is about 32%.
+        </p>
+
+        <h3>2. BOGO — the discount in disguise</h3>
+        <p>
+          "Buy one get one free" feels like giving away 100%, but you still
+          collect payment for one unit. The effective discount is:
+        </p>
+        <div class="formula-box">
+          effective discount = (free units ÷ total units) × 100
+        </div>
+        <p>
+          BOGO (1+1) is a 50% effective discount. Buy 2 get 1 free is 33.3%.
+          Buy 3 get 1 free is 25%. Sellers use BOGO for two reasons: it moves
+          two-plus units per order (better unit economics on shipping and
+          fees), and the framed value — "FREE" — converts better than the
+          equivalent percentage off. The catch is inventory: BOGO on a
+          best-seller can drain stock you would have sold at full price.
+        </p>
+
+        <h3>3. Threshold deals — discount that shrinks</h3>
+        <p>
+          "$20 off when you spend $100" is a fixed discount wearing a
+          percentage costume. At exactly $100, the customer gets 20% off. But
+          unlike a flat percentage, the effective rate <em>falls</em> as the
+          cart grows — at $180 the same deal is only 11%. Thresholds are the
+          only structure where bigger spenders get a <em>smaller</em>
+          effective discount, which is exactly why marketplaces love them for
+          big events: they lift average order value while protecting margin on
+          the customers who would have spent anyway.
+        </p>
+        <div class="formula-box">
+          effective discount = amount_off ÷ order_value × 100
+        </div>
+        <p>
+          The lever to tune is the gap between threshold and typical order
+          value. Set the threshold about 15–25% above your current average
+          order value and most customers will add an item to reach it — that
+          added item is often where the deal's profit comes from.
+        </p>
+
+        <h3>Picking between the three</h3>
+        <p>
+          Use <strong>percentage off</strong> when you need simple, loud
+          messaging on marketplace event pages. Use <strong>BOGO</strong> when
+          unit economics are strong and you want to move volume per order.
+          Use <strong>thresholds</strong> when you want to raise basket size
+          and let the effective discount shrink on its own. Whatever you pick,
+          run the exact deal through this calculator first: the profit-per-unit
+          number after the discount is the only honest way to compare a
+          promotion against just selling at full price.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>Discount calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .mode-tab {
+    font-family: var(--font-mono, inherit);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    padding: 11px 8px;
+    border: 1.5px dashed var(--line, #c9bfa8);
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .mode-tab:hover {
+    border-color: var(--ink, #2a2118);
+  }
+  .mode-tab[aria-selected='true'] {
+    background: var(--ink, #2a2118);
+    color: var(--paper, #faf6ee);
+    border-style: solid;
+    border-color: var(--ink, #2a2118);
+  }
+  .opt {
+    font-weight: 400;
+    opacity: 0.6;
+    font-size: 0.85em;
+  }
+</style>
+
+<script>
+  function $<T extends HTMLElement = HTMLInputElement>(id: string): T {
+    return document.getElementById(id) as T;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  type Mode = 'pct' | 'bogo' | 'threshold';
+  let mode: Mode = 'pct';
+
+  // last full-price profit, for the "volume needed" comparison line
+  let baseProfit: number | null = null;
+
+  function setMode(m: Mode) {
+    mode = m;
+    document.querySelectorAll('.mode-tab').forEach((b) => {
+      b.setAttribute('aria-selected', String((b as HTMLElement).dataset.mode === m));
+    });
+    $('sec-pct').hidden = m !== 'pct';
+    $('sec-bogo').hidden = m !== 'bogo';
+    $('sec-threshold').hidden = m !== 'threshold';
+    recalc();
+  }
+
+  function recalc() {
+    const show = (id: string, on: boolean) => {
+      const el = document.getElementById(id);
+      if (el) el.hidden = !on;
+    };
+
+    let list = 0;
+    let ded = 0;
+    let pay = 0;
+    let effPerUnit: number | null = null;
+    let units = 1;
+    let profit: number | null = null;
+    let marginPct: number | null = null;
+    let listLabel = 'List price';
+    let dedLabel = 'Discount';
+    let payLabel = 'Customer pays';
+    let profitLabel = 'Profit / unit';
+    let sub = 'per sale · live';
+
+    if (mode === 'pct') {
+      const price = read('p-price');
+      const off = Math.min(read('p-off'), 100);
+      const cost = read('p-cost');
+      ded = price * (off / 100);
+      pay = price - ded;
+      profit = pay - cost;
+      marginPct = pay > 0 ? (profit / pay) * 100 : 0;
+      baseProfit = price > 0 && cost > 0 ? price - cost : null;
+      list = price;
+      effPerUnit = pay;
+    } else if (mode === 'bogo') {
+      const price = read('b-price');
+      const cost = read('b-cost');
+      const buy = Math.max(1, Math.floor(read('b-buy')) || 1);
+      const get = Math.max(1, Math.floor(read('b-get')) || 1);
+      const off = Math.min(read('b-off'), 100);
+
+      const paidUnits = buy;
+      const dealUnits = get;
+      units = buy + get;
+      const dealUnitPrice = price * (1 - off / 100);
+      list = price * units;
+      ded = dealUnits * (price - dealUnitPrice);
+      pay = list - ded;
+      effPerUnit = units > 0 ? pay / units : 0;
+      const totalCost = cost * units;
+      profit = pay - totalCost;
+      marginPct = pay > 0 ? (profit / pay) * 100 : 0;
+      baseProfit = price > 0 && cost > 0 ? price - cost : null;
+      listLabel = `Full value (${units} units)`;
+      dedLabel = off >= 100 ? `${dealUnits} free unit${dealUnits > 1 ? 's' : ''}` : 'Deal discount';
+      payLabel = 'Customer pays';
+      profitLabel = 'Profit / order';
+      sub = `buy ${buy} get ${get} · live`;
+    } else {
+      const value = read('t-value');
+      const spend = read('t-spend');
+      const off = read('t-off');
+      const qualifies = value >= spend && spend > 0;
+      list = value;
+      ded = qualifies ? Math.min(off, value) : 0;
+      pay = value - ded;
+      effPerUnit = null;
+      listLabel = 'Cart value';
+      dedLabel = qualifies ? 'Deal discount' : 'Below threshold';
+      payLabel = 'Customer pays';
+      sub = 'per order · live';
+      show('l-vol', false);
+    }
+
+    $('t-list').textContent = listLabel;
+    $('t-ded').textContent = dedLabel;
+    $('t-pay').textContent = payLabel;
+    $('t-profit').textContent = profitLabel;
+    $('r-sub').textContent = sub;
+
+    $('r-list').textContent = money(list);
+    $('r-ded').textContent = `−${money(ded)}`;
+    $('r-pay').textContent = money(pay);
+
+    show('l-eff', effPerUnit !== null && units >= 1);
+    if (effPerUnit !== null) $('r-eff').textContent = money(effPerUnit);
+
+    show('l-effpct', list > 0);
+    $('r-effpct').textContent = list > 0 ? pct((ded / list) * 100) : '—';
+
+    const hasMargin = mode !== 'threshold';
+    show('l-margin', hasMargin);
+    show('l-profit', hasMargin);
+    if (hasMargin && profit !== null && marginPct !== null) {
+      const profitEl = $('r-profit');
+      profitEl.textContent = (profit < 0 ? '−' : '') + money(Math.abs(profit));
+      profitEl.classList.toggle('pos', profit >= 0);
+      profitEl.classList.toggle('neg', profit < 0);
+      $('r-margin').textContent = pct(marginPct);
+
+      // volume multiple needed to match full-price profit
+      show('l-vol', profit > 0 && baseProfit !== null && baseProfit > 0);
+      if (profit > 0 && baseProfit !== null && baseProfit > 0) {
+        $('r-vol').textContent = `${(baseProfit / profit).toFixed(1)}x sales`;
+      }
+    }
+
+    const verdict = $('r-verdict');
+    if (!hasMargin) {
+      const eff = list > 0 ? (ded / list) * 100 : 0;
+      if (eff >= 30) {
+        verdict.className = 'verdict neg';
+        verdict.textContent = 'deep effective discount — check margin';
+      } else if (eff >= 15) {
+        verdict.className = 'verdict pos';
+        verdict.textContent = 'moderate discount · reasonable';
+      } else {
+        verdict.className = 'verdict pos';
+        verdict.textContent = 'light discount ✓';
+      }
+    } else if (profit === null || marginPct === null) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'deal still pays ✓';
+    } else if (profit < 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'selling below cost ✕';
+    } else if (marginPct >= 25) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'deal still pays ✓';
+    } else if (marginPct >= 10) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'workable — thin margin';
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'margin nearly gone ✕';
+    }
+  }
+
+  document.querySelectorAll('.mode-tab').forEach((b) => {
+    b.addEventListener('click', () => setMode((b as HTMLElement).dataset.mode as Mode));
+  });
+
+  ['p-price', 'p-off', 'p-cost', 'b-price', 'b-cost', 'b-buy', 'b-get', 'b-off', 't-value', 't-spend', 't-off'].forEach(
+    (id) => $(id).addEventListener('input', recalc)
+  );
+
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'Discount deal economics (emallsoon.com)',
+      `${$('t-list').textContent}:      ${$('r-list').textContent}`,
+      `${$('t-ded').textContent}:      ${$('r-ded').textContent}`,
+      `${$('t-pay').textContent}:   ${$('r-pay').textContent}`,
+      `Effective discount: ${$('r-effpct').textContent}`,
+    ];
+    const marginRow = document.getElementById('l-margin');
+    if (marginRow && !marginRow.hidden) {
+      lines.push(`Margin after deal: ${$('r-margin').textContent}`);
+      lines.push(`${$('t-profit').textContent}:    ${$('r-profit').textContent}`);
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  setMode('pct');
+</script>

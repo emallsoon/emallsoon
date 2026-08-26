@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   /** path on the site, with trailing slash */
   href: string;
-  icon: 'fba' | 'shopify' | 'etsy' | 'roas';
+  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount';
 }
 
 export const tools: Tool[] = [
@@ -49,6 +49,16 @@ export const tools: Tool[] = [
       'Find your break-even ROAS before you scale spend. Compare it with actual campaign ROAS to know if your ads print money or burn it.',
     href: '/tools/roas-break-even-calculator/',
     icon: 'roas',
+  },
+  {
+    slug: 'discount-pricing-calculator',
+    name: 'Discount Pricing Calculator',
+    shortName: 'Discounts',
+    tag: 'Pricing',
+    description:
+      'Price percentage-off, BOGO, and spend-threshold deals against your real margin. See profit per unit after the discount and the maximum you can afford to give.',
+    href: '/tools/discount-pricing-calculator/',
+    icon: 'discount',
   },
 ];
 
