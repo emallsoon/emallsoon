@@ -12,6 +12,7 @@
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
  *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-26)
+ *  - eBay: eBay Seller Center "Understanding selling fees" (verified 2026-08-26)
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
@@ -106,3 +107,45 @@ export const tiktokReferralDefault = 6;
  */
 export const tiktokRefundAdminPct = 20;
 export const tiktokRefundAdminCap = 5;
+
+/* ---------- eBay (US) ---------- */
+export interface EbayCategory {
+  id: string;
+  label: string;
+  /** Individual (non-store) final value fee % */
+  individualPct: number;
+  /** Store subscriber discounted final value fee % */
+  storePct: number;
+  /** Whether the per-order fee ($0.30/$0.40) applies */
+  perOrderFeeApplies: boolean;
+}
+
+/**
+ * eBay US final value fee categories (2026).
+ * The final value fee is calculated on the total amount of the sale
+ * (item price + shipping + sales tax + handling). Per-order fee is
+ * $0.30 for orders ≤$10, $0.40 for orders >$10.
+ * Source: eBay Seller Center, verified 2026-08-26.
+ */
+export const ebayCategories: EbayCategory[] = [
+  { id: 'most', label: 'Most categories', individualPct: 13.6, storePct: 12.7, perOrderFeeApplies: true },
+  { id: 'books', label: 'Books, Movies & Music', individualPct: 15.3, storePct: 15.3, perOrderFeeApplies: true },
+  { id: 'jewelry', label: 'Jewelry & Watches', individualPct: 15, storePct: 13, perOrderFeeApplies: true },
+  { id: 'sneakers', label: 'Sneakers (over $150)', individualPct: 8, storePct: 7, perOrderFeeApplies: false },
+  { id: 'guitars', label: 'Guitars & Basses', individualPct: 6.7, storePct: 6.7, perOrderFeeApplies: true },
+  { id: 'electronics', label: 'Consumer Electronics', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true },
+  { id: 'computers', label: 'Computers', individualPct: 13.6, storePct: 7.35, perOrderFeeApplies: true },
+  { id: 'coins', label: 'Coins & Paper Money', individualPct: 13.25, storePct: 9, perOrderFeeApplies: true },
+  { id: 'tradingcards', label: 'Trading Cards', individualPct: 13.25, storePct: 12.35, perOrderFeeApplies: true },
+  { id: 'autparts', label: 'Auto Parts & Accessories', individualPct: 13.6, storePct: 11.5, perOrderFeeApplies: true },
+  { id: 'stamps', label: 'Stamps', individualPct: 13.6, storePct: 9.7, perOrderFeeApplies: true },
+  { id: 'instruments', label: 'Musical Instruments & Gear', individualPct: 13.6, storePct: 10.35, perOrderFeeApplies: true },
+];
+
+/** Per-order fees (included in final value fee) */
+export const ebayPerOrderUnder10 = 0.3;
+export const ebayPerOrderOver10 = 0.4;
+
+/** Insertion fee for listings beyond the 250/month free allotment */
+export const ebayInsertionFee = 0.35;
+export const ebayFreeListingsPerMonth = 250;

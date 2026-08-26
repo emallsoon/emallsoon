@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   /** path on the site, with trailing slash */
   href: string;
-  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok';
+  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok' | 'ebay';
 }
 
 export const tools: Tool[] = [
@@ -79,6 +79,16 @@ export const tools: Tool[] = [
       'Calculate TikTok Shop referral fees, affiliate commissions, and ad spend to see real profit per order. Includes category presets and refund admin fees.',
     href: '/tools/tiktok-shop-fee-calculator/',
     icon: 'tiktok',
+  },
+  {
+    slug: 'ebay-fee-calculator',
+    name: 'eBay Fee & Profit Calculator',
+    shortName: 'eBay Fees',
+    tag: 'eBay',
+    description:
+      'Factor in final value fees by category, per-order charges, insertion fees, promoted listings, and Store subscriber savings to see true profit on every eBay sale.',
+    href: '/tools/ebay-fee-calculator/',
+    icon: 'ebay',
   },
 ];
 
