@@ -1,0 +1,513 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+import { tiktokCategories, tiktokRefundAdminPct, tiktokRefundAdminCap } from '../../data/fees';
+
+const tool = tools.find((t) => t.slug === 'tiktok-shop-fee-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'TikTok Shop Fee & Profit Calculator — Real Profit Per Order | emallsoon';
+const description =
+  'Free TikTok Shop fee calculator. Enter price, category, affiliate commission, and ad spend to see real profit per order. US referral fee presets included. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'TikTok Shop Fee Calculator',
+  url: 'https://emallsoon.com/tools/tiktok-shop-fee-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free TikTok Shop fee and profit calculator: referral fee by category, affiliate commissions, ad spend, refund admin fees, and true profit per order.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'TikTok Shop Fee Calculator', item: 'https://emallsoon.com/tools/tiktok-shop-fee-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'How much does TikTok Shop charge sellers?',
+    a: 'TikTok Shop charges US sellers a single referral fee: 6% on most categories, 5% on jewelry and pre-owned items, and 3% for new sellers in their first 30 days. This fee already includes payment processing — there is no separate transaction fee. The referral fee is calculated on the product price plus shipping charged to the buyer, minus TikTok-funded discounts. Sales tax is excluded.',
+  },
+  {
+    q: 'Is TikTok Shop cheaper than Amazon?',
+    a: 'On referral fees alone, yes — 6% vs Amazon\'s 8–15%. But the comparison is misleading. TikTok Shop requires affiliate commissions (typically 5–15% of affiliate-driven revenue) and ad spend (15–25% of revenue) to generate meaningful traffic, because the platform is discovery-first with limited organic reach. When you stack all costs, TikTok Shop\'s total take can run 35–55% of revenue — higher than Amazon for most categories. Use the calculator to model your full cost stack before comparing platforms.',
+  },
+  {
+    q: 'Do I have to pay affiliate commissions on TikTok Shop?',
+    a: 'Affiliate commissions are technically optional but practically required for meaningful revenue on TikTok Shop. The platform\'s discovery model favors products with active creator promotion. Open marketplace commissions run 5–15%; targeted creator collaborations run 10–20%. If affiliate sales make up 40–60% of your revenue (common for growing brands), the blended impact on total revenue is 4–9%. Most sellers set 10–15% to attract competitive creators.',
+  },
+  {
+    q: 'What is the TikTok Shop refund administration fee?',
+    a: 'When a buyer returns an item, TikTok refunds your referral fee but keeps a refund administration fee of 20% of that referral fee, capped at $5 per SKU. On a $30 order with a 6% referral fee ($1.80), the admin fee would be $0.36. The calculator factors this in when you enter your return rate.',
+  },
+  {
+    q: 'Why is my TikTok Shop profit so much lower than expected?',
+    a: 'Most sellers budget only for the 6% referral fee and discover the real cost is 3–5x higher. The missing layers are: affiliate commissions (5–15% of affiliate revenue), ad spend (15–25% of total revenue), shipping and fulfillment (8–15%), content production (video is mandatory on TikTok, not optional), and returns (3–8% of revenue). Run every order through the calculator with all layers filled in — the profit-per-unit number is almost always lower than the "6% fee" mental model suggests.',
+  },
+  {
+    q: 'Should I set my price based on the new seller 3% rate?',
+    a: 'No. The 3% promotional rate lasts only 30 days. If you price for 3% referral, your margin collapses when the standard 6% kicks in. Always model your pricing on the standard rate from day one — the 30-day promo is a bonus, not a foundation. The calculator lets you switch between rates to see the margin difference.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+const refundPct = tiktokRefundAdminPct;
+const refundCap = tiktokRefundAdminCap;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>TikTok Shop Fee Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">TikTok Shop · free · no signup</p>
+        <h1>TikTok Shop Fee Calculator</h1>
+        <p class="lede">
+          TikTok Shop's 6% referral fee looks low — until you stack
+          affiliate commissions, ad spend, and returns. See your real profit
+          per order with every cost layer included, not just the headline
+          rate.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="tt-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Order details</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="price">Selling price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="price" value="30.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="category">Category / referral fee</label>
+                <select id="category">
+                  {tiktokCategories.map((c) => (
+                    <option value={c.pct} data-id={c.id}>{c.label}</option>
+                  ))}
+                </select>
+                <span class="hint">Includes payment processing — no extra fee</span>
+              </div>
+              <div class="field">
+                <label for="shipping">Shipping charged to buyer</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="shipping" value="0.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">If free shipping, enter 0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Costs per order</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="cost">Product cost <span class="opt">(landed)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="cost" value="9.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Unit cost incl. inbound shipping</span>
+              </div>
+              <div class="field">
+                <label for="fulfillment">Fulfillment / shipping you pay</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="fulfillment" value="4.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">FBT pick-pack or your 3PL cost</span>
+              </div>
+              <div class="field">
+                <label for="affiliate">Affiliate commission</label>
+                <div class="input-shell">
+                  <input type="number" id="affiliate" value="10" min="0" max="100" step="0.5" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">Creator commission on affiliate sales</span>
+              </div>
+              <div class="field">
+                <label for="affiliate-share">% of sales from affiliates</label>
+                <div class="input-shell">
+                  <input type="number" id="affiliate-share" value="50" min="0" max="100" step="5" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">Blended: 40–60% is common</span>
+              </div>
+              <div class="field">
+                <label for="ads">Ad spend per order</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="ads" value="6.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Or monthly ad spend ÷ monthly orders</span>
+              </div>
+              <div class="field">
+                <label for="returns">Return rate <span class="opt">(optional)</span></label>
+                <div class="input-shell">
+                  <input type="number" id="returns" value="8" min="0" max="100" step="1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">For refund admin fee calculation</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">TikTok Profit Receipt</p>
+                <p class="rh-sub">per order · live</p>
+              </div>
+
+              <div class="rline"><span class="rl-label">Selling price</span><span class="rl-dots"></span><span class="rl-val" id="r-price">$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Referral fee <span class="rl-sub-label" id="t-ref-rate">(6%)</span></span><span class="rl-dots"></span><span class="rl-val" id="r-referral">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Affiliate commission</span><span class="rl-dots"></span><span class="rl-val" id="r-affiliate">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Ad cost</span><span class="rl-dots"></span><span class="rl-val" id="r-ads">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Fulfillment</span><span class="rl-dots"></span><span class="rl-val" id="r-fulfillment">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Refund admin <span class="opt">(amortized)</span></span><span class="rl-dots"></span><span class="rl-val" id="r-refund">−$0.00</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Net revenue</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-net" aria-live="polite">$0.00</span>
+              </div>
+              <div class="rline rline--fee"><span class="rl-label">Product cost</span><span class="rl-dots"></span><span class="rl-val" id="r-cost">−$0.00</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Profit / unit</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0.00</span>
+              </div>
+              <div class="rline rline--meta"><span class="rl-label">Margin</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Total platform take</span><span class="rl-dots"></span><span class="rl-val" id="r-take">0%</span></div>
+
+              <div class="verdict pos" id="r-verdict">profitable ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Referral fee includes payment processing (no separate charge).
+                Affiliate commission applies only to affiliate-driven sales,
+                blended by the share you enter. Return admin fee is 20% of
+                referral, capped at $5/SKU.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>The 6% illusion: TikTok Shop's real cost stack</h2>
+        <p>
+          TikTok Shop advertises a 6% referral fee that includes payment
+          processing — genuinely lower than Amazon's 8–15% referral plus
+          separate processing. But sellers who price for 6% discover the real
+          cost of selling on TikTok Shop runs 35–55% of revenue. The gap
+          between the advertised fee and the actual cost is where most TikTok
+          Shop sellers lose money without understanding why.
+        </p>
+
+        <h3>Layer 1: Referral fee (the only platform fee)</h3>
+        <p>
+          Unlike Amazon, Etsy, or Shopify, TikTok Shop charges a single
+          unified fee. The 6% (5% for jewelry, 3% for new sellers' first 30
+          days) covers both referral and payment processing — there is no
+          separate transaction fee, no per-order flat charge, and no listing
+          fee. On a $30 product, that is $1.80. Simple, transparent, and
+          genuinely the lowest platform fee among major marketplaces:
+        </p>
+        <div class="formula-box">
+          referral = (price + shipping_to_buyer) × referral_rate%
+        </div>
+
+        <h3>Layer 2: Affiliate commissions (the TikTok tax)</h3>
+        <p>
+          This is the cost that catches every seller moving from Amazon or
+          Shopify. TikTok Shop is a discovery-first platform — buyers find
+          products through creator content, not search. To get that content,
+          you pay affiliate commissions: 5–15% on the open marketplace,
+          10–20% for targeted creator collaborations. If 50% of your sales
+          come through affiliates at 10% commission, the blended cost is 5%
+          of total revenue — nearly as much as the referral fee itself:
+        </p>
+        <div class="formula-box">
+          affiliate_cost = price × commission% × affiliate_share%
+        </div>
+        <p>
+          The calculator handles this blending automatically — enter your
+          commission rate and the share of sales from affiliates, and the
+          effective cost is calculated on total revenue, not just affiliate
+          revenue.
+        </p>
+
+        <h3>Layer 3: Ad spend (practically required)</h3>
+        <p>
+          TikTok Shop Ads are technically optional. In practice, sellers
+          without active campaigns see traffic decline 30–50% month over
+          month after launch momentum fades. The algorithm rewards
+          consistent ad investment. Most successful sellers allocate 15–25%
+          of revenue to ads. On a $30 product, that is $4.50–$7.50 per unit
+          in ad cost alone — more than the referral fee and affiliate
+          commission combined. Enter your ad cost per order (monthly spend ÷
+          monthly orders) to see the real picture.
+        </p>
+
+        <h3>Layer 4: Fulfillment and shipping</h3>
+        <p>
+          Fulfilled by TikTok (FBT) charges pick-and-pack fees of $2.50–$4.50
+          per order plus storage at $0.75–$1.50/cubic foot/month. Seller
+          fulfilled runs $3–$8 per order via your own 3PL. Either way,
+          fulfillment costs 8–15% of order value for products in the $20–$80
+          range. This is the second-largest cost bucket after advertising.
+        </p>
+
+        <h3>Layer 5: Returns and refund admin</h3>
+        <p>
+          TikTok Shop return rates run 10–20% for fashion, 5–10% for beauty,
+          3–8% for home goods. When a buyer returns, TikTok refunds your
+          referral fee but keeps an administration fee of 20% of that fee,
+          capped at $5 per SKU:
+        </p>
+        <div class="formula-box">
+          refund_admin = min(referral × 20%, $5) × return_rate%
+        </div>
+        <p>
+          The calculator amortizes this across all orders — enter your
+          return rate and the per-order cost appears automatically. It is a
+          small number per order, but it compounds with the shipping,
+          restocking, and inventory damage that returns cause.
+        </p>
+
+        <h3>The full stack on a typical order</h3>
+        <p>
+          On a $30 beauty product with 6% referral, 10% affiliate commission
+          on 50% of sales, $6 ad cost, $4 fulfillment, 8% return rate, and $9
+          product cost: referral $1.80 + affiliate $1.50 + ads $6.00 +
+          fulfillment $4.00 + refund admin $0.03 = $13.33 in fees and
+          logistics. Subtract $9 product cost and you are left with $7.67
+          profit — a 25.6% margin. Not bad, but a far cry from the "94% goes
+          to me" mental model that the 6% referral fee creates.
+        </p>
+        <p>
+          The same product without affiliate sales and with $3 ad spend
+          would earn $12.17 — 40.6% margin. The difference between
+          25.6% and 40.6% is entirely in the affiliate and ad layers, which
+          is why those two inputs are the most important levers to optimize.
+          Use the <a href="/tools/roas-break-even-calculator/">ROAS
+          break-even calculator</a> to find the maximum ad cost your margin
+          can absorb, and the <a
+          href="/tools/break-even-units-calculator/">break-even units
+          calculator</a> to see how many orders you need at this margin to
+          cover fixed costs.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>TikTok Shop fee calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .opt {
+    font-weight: 400;
+    opacity: 0.6;
+    font-size: 0.85em;
+  }
+  .rl-sub-label {
+    opacity: 0.6;
+    font-size: 0.85em;
+    margin-left: 4px;
+  }
+</style>
+
+<script>
+  function $<T extends HTMLElement = HTMLInputElement>(id: string): T {
+    return document.getElementById(id) as T;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  const REFUND_ADMIN_PCT = {refundPct};
+  const REFUND_ADMIN_CAP = {refundCap};
+
+  function recalc() {
+    const price = read('price');
+    const shipping = read('shipping');
+    const cost = read('cost');
+    const fulfillment = read('fulfillment');
+    const affiliatePct = Math.min(read('affiliate'), 100);
+    const affiliateShare = Math.min(read('affiliate-share'), 100);
+    const ads = read('ads');
+    const returnRate = Math.min(read('returns'), 100);
+
+    const selected = $('category').selectedOptions[0] as HTMLOptionElement;
+    const refRate = parseFloat(selected?.value ?? '6') || 6;
+    $('t-ref-rate').textContent = `(${refRate}%)`;
+
+    const orderValue = price + shipping;
+    const referral = orderValue * (refRate / 100);
+    const affiliateCost = price * (affiliatePct / 100) * (affiliateShare / 100);
+    const refundPerReturn = Math.min(referral * (REFUND_ADMIN_PCT / 100), REFUND_ADMIN_CAP);
+    const refundAmortized = refundPerReturn * (returnRate / 100);
+
+    const totalFees = referral + affiliateCost + ads + fulfillment + refundAmortized;
+    const netRevenue = orderValue - totalFees;
+    const profit = netRevenue - cost;
+    const margin = price > 0 ? (profit / price) * 100 : 0;
+    const platformTake = price > 0 ? (totalFees / price) * 100 : 0;
+
+    $('r-price').textContent = money(price);
+    $('r-referral').textContent = `−${money(referral)}`;
+    $('r-affiliate').textContent = `−${money(affiliateCost)}`;
+    $('r-ads').textContent = `−${money(ads)}`;
+    $('r-fulfillment').textContent = `−${money(fulfillment)}`;
+    $('r-refund').textContent = `−${money(refundAmortized)}`;
+    $('r-net').textContent = money(netRevenue);
+    $('r-cost').textContent = `−${money(cost)}`;
+
+    const profitEl = $('r-profit');
+    profitEl.textContent = (profit < 0 ? '−' : '') + money(Math.abs(profit));
+    profitEl.classList.toggle('pos', profit >= 0);
+    profitEl.classList.toggle('neg', profit < 0);
+
+    $('r-margin').textContent = pct(margin);
+    $('r-take').textContent = pct(platformTake);
+
+    const verdict = $('r-verdict');
+    if (profit < 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'selling at a loss ✕';
+    } else if (margin >= 30) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'healthy margin ✓';
+    } else if (margin >= 15) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'profitable — watch ad costs';
+    } else if (margin >= 5) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'thin margin — optimize ads';
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'barely breaking even ✕';
+    }
+  }
+
+  ['price', 'shipping', 'cost', 'fulfillment', 'affiliate', 'affiliate-share', 'ads', 'returns', 'category'].forEach(
+    (id) => $(id).addEventListener('input', recalc)
+  );
+
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'TikTok Shop profit (emallsoon.com)',
+      `Selling price:        ${$('r-price').textContent}`,
+      `Referral fee:         ${$('r-referral').textContent}`,
+      `Affiliate commission: ${$('r-affiliate').textContent}`,
+      `Ad cost:              ${$('r-ads').textContent}`,
+      `Fulfillment:          ${$('r-fulfillment').textContent}`,
+      `Refund admin:         ${$('r-refund').textContent}`,
+      `Net revenue:          ${$('r-net').textContent}`,
+      `Product cost:         ${$('r-cost').textContent}`,
+      `Profit/unit:          ${$('r-profit').textContent}`,
+      `Margin:               ${$('r-margin').textContent}`,
+      `Total platform take:  ${$('r-take').textContent}`,
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  recalc();
+</script>

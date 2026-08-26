@@ -11,6 +11,7 @@
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15)
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
+ *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-26)
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
@@ -75,3 +76,33 @@ export const offsiteAdsOptions: OffsiteAdsOption[] = [
   { id: 'mandatory', label: 'Mandatory · 15% (under $10k/yr)', pct: 15 },
   { id: 'opted', label: 'Opted in · 12% (over $10k/yr)', pct: 12 },
 ];
+
+/* ---------- TikTok Shop (US) ---------- */
+export interface TikTokCategory {
+  id: string;
+  label: string;
+  pct: number;
+}
+
+/**
+ * TikTok Shop US referral fees (2026).
+ * The referral fee is a single unified charge that ALREADY includes
+ * payment processing — there is no separate transaction or processing fee.
+ * Source: TikTok Shop US Seller Center, verified 2026-08-26.
+ */
+export const tiktokCategories: TikTokCategory[] = [
+  { id: 'most', label: 'Most categories · 6%', pct: 6 },
+  { id: 'jewelry', label: 'Jewelry · 5%', pct: 5 },
+  { id: 'preowned', label: 'Pre-owned · 5%', pct: 5 },
+  { id: 'newseller', label: 'New seller promo · 3% (first 30 days)', pct: 3 },
+];
+
+/** Default referral fee percentage */
+export const tiktokReferralDefault = 6;
+
+/**
+ * Refund administration fee: 20% of the referral fee, capped at $5 per SKU.
+ * Applied when a buyer returns an item.
+ */
+export const tiktokRefundAdminPct = 20;
+export const tiktokRefundAdminCap = 5;

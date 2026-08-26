@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   /** path on the site, with trailing slash */
   href: string;
-  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven';
+  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok';
 }
 
 export const tools: Tool[] = [
@@ -69,6 +69,16 @@ export const tools: Tool[] = [
       'Find the exact number of units you must sell to cover fixed costs. See how price, margin, and ad spend shift your break-even point — before you commit inventory.',
     href: '/tools/break-even-units-calculator/',
     icon: 'breakeven',
+  },
+  {
+    slug: 'tiktok-shop-fee-calculator',
+    name: 'TikTok Shop Fee Calculator',
+    shortName: 'TikTok Shop',
+    tag: 'TikTok',
+    description:
+      'Calculate TikTok Shop referral fees, affiliate commissions, and ad spend to see real profit per order. Includes category presets and refund admin fees.',
+    href: '/tools/tiktok-shop-fee-calculator/',
+    icon: 'tiktok',
   },
 ];
 
