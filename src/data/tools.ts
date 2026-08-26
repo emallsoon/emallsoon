@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   /** path on the site, with trailing slash */
   href: string;
-  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok' | 'ebay';
+  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok' | 'ebay' | 'compare';
 }
 
 export const tools: Tool[] = [
@@ -89,6 +89,16 @@ export const tools: Tool[] = [
       'Factor in final value fees by category, per-order charges, insertion fees, promoted listings, and Store subscriber savings to see true profit on every eBay sale.',
     href: '/tools/ebay-fee-calculator/',
     icon: 'ebay',
+  },
+  {
+    slug: 'platform-fee-comparison',
+    name: 'Platform Fee Comparison',
+    shortName: 'Compare',
+    tag: 'Compare',
+    description:
+      'Enter your price and cost once — instantly compare profit, fees, and margin across Amazon, eBay, Etsy, Shopify, and TikTok Shop. Find the most profitable platform in seconds.',
+    href: '/tools/platform-fee-comparison/',
+    icon: 'compare',
   },
 ];
 

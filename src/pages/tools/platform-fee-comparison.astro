@@ -1,0 +1,631 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+
+const tool = tools.find((t) => t.slug === 'platform-fee-comparison')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'Platform Fee Comparison — Amazon vs eBay vs Etsy vs Shopify vs TikTok | emallsoon';
+const description =
+  'Free platform fee comparison tool. Enter your price and cost once — instantly compare profit, fees, and margin across Amazon FBA, eBay, Etsy, Shopify, and TikTok Shop. Find the most profitable platform in seconds. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Platform Fee Comparison Tool',
+  url: 'https://emallsoon.com/tools/platform-fee-comparison/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free platform fee comparison calculator: enter price and cost to compare profit, fees, and margin across Amazon FBA, eBay, Etsy, Shopify, and TikTok Shop side by side.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Platform Fee Comparison', item: 'https://emallsoon.com/tools/platform-fee-comparison/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'Which e-commerce platform has the lowest fees?',
+    a: 'It depends on your product and how you drive traffic. By platform fee alone, Shopify is cheapest at ~2.9% + $0.30 per order (using Shopify Payments) — but you must drive your own traffic, which costs $5–20 per order in ads. TikTok Shop has the lowest marketplace referral fee at 6% (including payment processing), but requires affiliate commissions (5–15%) and ad spend. Amazon FBA costs 15% referral + $5.50 fulfillment. eBay charges 13.6% + $0.40 per order. Etsy runs ~9.5% + $0.45. Use the comparison tool to see which platform nets you the most profit for your specific price point.',
+  },
+  {
+    q: 'Is Amazon FBA or eBay more profitable?',
+    a: 'For most products under $50, Amazon FBA is more profitable despite higher fees, because Amazon drives organic traffic (no ad spend required) and Prime conversion rates are 2–4x higher. On a $30 product: Amazon nets ~$15.20 after 15% referral + $5.50 FBA + $9 cost; eBay nets ~$13.94 after 13.6% FVF + $0.40 + 3% promoted + $9 cost + $4 shipping. But for used items, collectibles, and electronics over $150, eBay often wins due to lower category rates (6.7% for guitars, 8% for sneakers). The comparison tool shows the exact breakdown for your numbers.',
+  },
+  {
+    q: 'Why does Shopify look so profitable in the comparison?',
+    a: 'Shopify has the lowest transaction fees (2.9% + $0.30 with Shopify Payments), but that comparison includes an estimated $10/order ad cost because Shopify has zero built-in marketplace traffic — you must drive every visitor yourself via ads, SEO, email, or social. If your customer acquisition cost is $5, Shopify looks great. If it is $20, it becomes the most expensive platform. Adjust the ad cost in the tool to match your actual CAC. The default $10 reflects a blended paid + organic average for established Shopify stores.',
+  },
+  {
+    q: 'Does the comparison include shipping costs?',
+    a: 'Yes. The tool asks for your shipping/fulfillment cost per order. For Amazon FBA and TikTok Shop FBT, fulfillment is handled by the platform (FBA fee or FBT fee) — your separate shipping cost does not apply to those platforms. For eBay, Etsy, and Shopify, your shipping cost is added on top of platform fees. This gives you a true all-in comparison: every platform is evaluated on total cost of selling, not just headline fees.',
+  },
+  {
+    q: 'Can I compare more than the default fees?',
+    a: 'The comparison tool uses each platform\'s default rates (most common category, standard plan). For detailed category-specific calculations — like Amazon grocery at 8%, eBay sneakers at 8%, or Etsy with mandatory Offsite Ads — use the individual platform calculators linked below each comparison row. The comparison tool is designed for a quick side-by-side snapshot; the individual calculators handle edge cases and category-specific rates.',
+  },
+  {
+    q: 'Which platform should I sell on?',
+    a: 'Profit is only one factor. Consider traffic source: Amazon and eBay bring buyers; Shopify and TikTok require you to create demand. Consider category fit: Etsy favors handmade/vintage; TikTok favors visual, impulse-buy products; Amazon favors commodity/search-driven items. Consider fulfillment: FBA and FBT handle shipping for you; eBay/Etsy/Shopify require your own logistics. Use the comparison tool to narrow down, then test with small inventory before committing. Most successful sellers are multichannel — the same product on 2–3 platforms.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+// Fee constants for server-side rendering of defaults
+const amazonReferralPct = 15;
+const amazonFbaFee = 5.5;
+const ebayFvfPct = 13.6;
+const ebayPerOrder = 0.4;
+const ebayPromotedPct = 3;
+const etsyListingFee = 0.2;
+const etsyTransactionPct = 6.5;
+const etsyProcessingPct = 3;
+const etsyProcessingFlat = 0.25;
+const shopifyProcPct = 2.9;
+const shopifyProcFlat = 0.3;
+const shopifyAdCost = 10;
+const tiktokReferralPct = 6;
+const tiktokAffiliatePct = 5;
+const tiktokAdCost = 6;
+const tiktokFbtFee = 4;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Platform Fee Comparison</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Compare · free · no signup</p>
+        <h1>Platform Fee Comparison</h1>
+        <p class="lede">
+          One product, five platforms, five different fee stacks. Enter your
+          numbers once and see profit side by side — Amazon FBA, eBay, Etsy,
+          Shopify, and TikTok Shop — ranked by what actually lands in your
+          bank.
+        </p>
+      </header>
+
+      <div class="cmp-grid">
+        <form class="calc-form" id="cmp-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Your product</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="price">Selling price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="price" value="30.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Same price across all platforms</span>
+              </div>
+              <div class="field">
+                <label for="cost">Product cost <span class="opt">(landed)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="cost" value="9.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Unit cost incl. inbound shipping</span>
+              </div>
+              <div class="field">
+                <label for="shipping">Shipping / fulfillment <span class="opt">(your cost)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="shipping" value="4.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Applies to eBay, Etsy &amp; Shopify only</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Platform-specific defaults</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="amazon-fba">Amazon FBA fulfillment</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="amazon-fba" value="5.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">FBA pick-pack-ship (replaces your shipping)</span>
+              </div>
+              <div class="field">
+                <label for="shopify-ads">Shopify ad cost / order</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="shopify-ads" value="10.00" min="0" step="0.50" inputmode="decimal" />
+                </div>
+                <span class="hint">No marketplace traffic — you drive it</span>
+              </div>
+              <div class="field">
+                <label for="tiktok-ads">TikTok ad cost / order</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="tiktok-ads" value="6.00" min="0" step="0.50" inputmode="decimal" />
+                </div>
+                <span class="hint">Ads + affiliate blended</span>
+              </div>
+              <div class="field">
+                <label for="tiktok-fbt">TikTok FBT fulfillment</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="tiktok-fbt" value="4.00" min="0" step="0.50" inputmode="decimal" />
+                </div>
+                <span class="hint">FBT pick-pack (replaces your shipping)</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="cmp-results" aria-label="Platform comparison results">
+          <div class="cmp-table" id="cmp-table">
+            <!-- Rows are rendered by JavaScript -->
+          </div>
+          <p class="disclaimer">
+            Uses default rates: Amazon 15% referral, eBay 13.6% + $0.40 +
+            3% promoted, Etsy $0.20 + 6.5% + 3% + $0.25, Shopify 2.9% + $0.30
+            (Shopify Payments), TikTok 6% + 5% affiliate + ads. Verify
+            exact rates on each platform — use the individual calculators for
+            category-specific fees.
+          </p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>Same product, five different cost stacks</h2>
+        <p>
+          The same $30 product can net you $5 or $15 depending on where you
+          sell it. The difference is not just the headline fee rate — it is
+          the entire cost stack: referral fees, payment processing,
+          fulfillment, traffic acquisition, and category-specific surcharges.
+          No single platform is always cheapest; the winner depends on your
+          price point, category, and whether you can drive your own traffic.
+        </p>
+
+        <h3>Amazon FBA: the traffic tax</h3>
+        <p>
+          Amazon charges 15% referral on most categories plus a $5–6 FBA
+          fulfillment fee per unit. That is 15–20% of revenue gone before
+          product cost. But Amazon brings the traffic — Prime members convert
+          at 2–4x the rate of independent stores, and you pay zero ad spend
+          for organic search placement. For products in the $20–50 range
+          where FBA fulfillment ($5.50) is less than your own shipping
+          ($8+), Amazon's total cost can actually be lower than eBay despite
+          the higher percentage.
+        </p>
+
+        <h3>eBay: the middle ground</h3>
+        <p>
+          eBay's 13.6% final value fee plus $0.40 per order looks lower than
+          Amazon's 15% — and it is, by about 1.4 points. But eBay requires
+          you to handle shipping, add promoted listings (2–5%), and live
+          with lower conversion rates. For electronics, books, and
+          collectibles, eBay's category-specific rates can be dramatically
+          lower: 6.7% for guitars, 8% for sneakers over $150. A Store
+          subscription ($21.95/month) cuts electronics from 13.6% to 9.35%,
+          which pays for itself at ~$600/month in electronics sales.
+        </p>
+
+        <h3>Etsy: the niche premium</h3>
+        <p>
+          Etsy charges a $0.20 listing fee, 6.5% transaction fee, and 3% +
+          $0.25 payment processing — totaling ~9.5% + $0.45 per order. That
+          is lower than Amazon and eBay, but Etsy only works for
+          handmade, vintage, or craft supply items. Offsite Ads (12–15%)
+          can push the total to 24–27% if you are enrolled. The platform
+          drives significant organic traffic for niche searches, so ad cost
+          is typically zero for established shops.
+        </p>
+
+        <h3>Shopify: the hidden traffic tax</h3>
+        <p>
+          Shopify has the lowest platform fees: 2.9% + $0.30 for payment
+          processing (using Shopify Payments on the Basic plan). But
+          Shopify provides zero marketplace traffic — every visitor must be
+          acquired through ads ($5–20/order), SEO (months to build), email
+          lists, or social media. When you factor in customer acquisition
+          cost, Shopify's "low fee" advantage disappears for new stores.
+          The break-even is typically $5/order in ad spend: below that,
+          Shopify wins; above that, marketplaces with built-in traffic
+          become more profitable.
+        </p>
+
+        <h3>TikTok Shop: the discovery tax</h3>
+        <p>
+          TikTok Shop's 6% referral fee (including payment processing) is
+          the lowest headline rate of any marketplace. But the real cost
+          includes affiliate commissions (5–15% on affiliate-driven sales),
+          ad spend ($4–10/order), and FBT fulfillment ($4). The total cost
+          stack runs 25–45% of revenue — higher than Amazon for most
+          products. TikTok Shop works best for visual, impulse-buy products
+          under $50 where creator content drives virality — the traffic is
+          free if your content goes viral, but the affiliate and ad costs
+          are the price of engineering virality.
+        </p>
+
+        <h3>Reading the comparison</h3>
+        <p>
+          The comparison tool ranks all five platforms by profit per unit,
+          with a visual bar showing relative profitability. The winner
+          depends on three variables: your price point (higher prices dilute
+          flat fees), your shipping cost (high shipping favors FBA/FBT),
+          and your ad tolerance (zero ads favors marketplaces with organic
+          traffic). Adjust the inputs to model different scenarios — the
+          bar chart updates in real time. Then use the individual <a
+          href="/tools/amazon-fba-profit-calculator/">Amazon FBA</a>, <a
+          href="/tools/ebay-fee-calculator/">eBay</a>, or <a
+          href="/tools/tiktok-shop-fee-calculator/">TikTok Shop</a>
+          calculators for category-specific fee rates.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>Platform comparison FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .opt {
+    font-weight: 400;
+    opacity: 0.6;
+    font-size: 0.85em;
+  }
+
+  /* comparison results */
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 40px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .cmp-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .cmp-results {
+    position: sticky;
+    top: 24px;
+  }
+
+  .cmp-table {
+    display: grid;
+    gap: 10px;
+  }
+
+  .cmp-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 18px;
+    border: 1.5px solid var(--line, #e0e0e0);
+    border-radius: 12px;
+    background: var(--paper, #fff);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .cmp-row.best {
+    border-color: var(--green, #2d7a4f);
+    box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.12);
+  }
+  .cmp-row.loss {
+    opacity: 0.65;
+  }
+
+  .cmp-rank {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink-3, #999);
+    width: 28px;
+    text-align: center;
+  }
+  .cmp-row.best .cmp-rank {
+    color: var(--green, #2d7a4f);
+  }
+
+  .cmp-info {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+  }
+  .cmp-name {
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cmp-best-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--green, #2d7a4f);
+    color: #fff;
+  }
+  .cmp-fee-breakdown {
+    font-size: 0.78rem;
+    color: var(--ink-3, #777);
+    line-height: 1.5;
+  }
+  .cmp-bar-wrap {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--paper-deep, #f5f5f5);
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .cmp-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  .cmp-numbers {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .cmp-profit {
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .cmp-profit.pos { color: var(--green, #2d7a4f); }
+  .cmp-profit.neg { color: var(--red, #c0392b); }
+  .cmp-margin {
+    font-size: 0.78rem;
+    color: var(--ink-3, #999);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<script>
+  function $<T extends HTMLElement = HTMLInputElement>(id: string): T {
+    return document.getElementById(id) as T;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  // Platform fee constants (from fees.ts defaults)
+  const AMZ_REFERRAL = {amazonReferralPct} / 100;
+  const EBAY_FVF = {ebayFvfPct} / 100;
+  const EBAY_PER_ORDER = {ebayPerOrder};
+  const EBAY_PROMOTED = {ebayPromotedPct} / 100;
+  const ETSY_LISTING = {etsyListingFee};
+  const ETSY_TXN = {etsyTransactionPct} / 100;
+  const ETSY_PROC = {etsyProcessingPct} / 100;
+  const ETSY_PROC_FLAT = {etsyProcessingFlat};
+  const SHO_PROC = {shopifyProcPct} / 100;
+  const SHO_PROC_FLAT = {shopifyProcFlat};
+  const TT_REFERRAL = {tiktokReferralPct} / 100;
+  const TT_AFFILIATE = {tiktokAffiliatePct} / 100;
+
+  interface Platform {
+    id: string;
+    name: string;
+    href: string;
+    fees: number;
+    feeBreakdown: string;
+    profit: number;
+    margin: number;
+    platformTake: number;
+  }
+
+  function calculate(): Platform[] {
+    const price = read('price');
+    const cost = read('cost');
+    const shipping = read('shipping');
+    const amazonFba = read('amazon-fba');
+    const shopifyAds = read('shopify-ads');
+    const tiktokAds = read('tiktok-ads');
+    const tiktokFbt = read('tiktok-fbt');
+
+    // Amazon FBA: 15% referral + FBA fee (covers fulfillment)
+    const amzReferral = price * AMZ_REFERRAL;
+    const amzFees = amzReferral + amazonFba;
+    const amzProfit = price - amzFees - cost;
+
+    // eBay: 13.6% FVF + $0.40 + 3% promoted
+    const ebayFvf = price * EBAY_FVF;
+    const ebayPromoted = price * EBAY_PROMOTED;
+    const ebayFees = ebayFvf + EBAY_PER_ORDER + ebayPromoted;
+    const ebayProfit = price - ebayFees - cost - shipping;
+
+    // Etsy: $0.20 + 6.5% + 3% + $0.25
+    const etsyTxn = price * ETSY_TXN;
+    const etsyProc = price * ETSY_PROC + ETSY_PROC_FLAT;
+    const etsyFees = ETSY_LISTING + etsyTxn + etsyProc;
+    const etsyProfit = price - etsyFees - cost - shipping;
+
+    // Shopify: 2.9% + $0.30 + ad cost
+    const shoProc = price * SHO_PROC + SHO_PROC_FLAT;
+    const shoFees = shoProc + shopifyAds;
+    const shoProfit = price - shoFees - cost - shipping;
+
+    // TikTok Shop: 6% referral + 5% affiliate + ads + FBT
+    const ttReferral = price * TT_REFERRAL;
+    const ttAffiliate = price * TT_AFFILIATE;
+    const ttFees = ttReferral + ttAffiliate + tiktokAds + tiktokFbt;
+    const ttProfit = price - ttFees - cost;
+
+    const platforms: Platform[] = [
+      {
+        id: 'amazon',
+        name: 'Amazon FBA',
+        href: '/tools/amazon-fba-profit-calculator/',
+        fees: amzFees,
+        feeBreakdown: `Referral ${pct(AMZ_REFERRAL * 100)} (${money(amzReferral)}) + FBA (${money(amazonFba)})`,
+        profit: amzProfit,
+        margin: price > 0 ? (amzProfit / price) * 100 : 0,
+        platformTake: price > 0 ? (amzFees / price) * 100 : 0,
+      },
+      {
+        id: 'ebay',
+        name: 'eBay',
+        href: '/tools/ebay-fee-calculator/',
+        fees: ebayFees,
+        feeBreakdown: `FVF ${pct(EBAY_FVF * 100)} (${money(ebayFvf)}) + per-order (${money(EBAY_PER_ORDER)}) + promoted ${pct(EBAY_PROMOTED * 100)} (${money(ebayPromoted)})`,
+        profit: ebayProfit,
+        margin: price > 0 ? (ebayProfit / price) * 100 : 0,
+        platformTake: price > 0 ? (ebayFees / price) * 100 : 0,
+      },
+      {
+        id: 'etsy',
+        name: 'Etsy',
+        href: '/tools/etsy-fee-calculator/',
+        fees: etsyFees,
+        feeBreakdown: `Listing (${money(ETSY_LISTING)}) + txn ${pct(ETSY_TXN * 100)} (${money(etsyTxn)}) + proc ${pct(ETSY_PROC * 100)} (${money(etsyProc)})`,
+        profit: etsyProfit,
+        margin: price > 0 ? (etsyProfit / price) * 100 : 0,
+        platformTake: price > 0 ? (etsyFees / price) * 100 : 0,
+      },
+      {
+        id: 'shopify',
+        name: 'Shopify',
+        href: '/tools/shopify-profit-margin-calculator/',
+        fees: shoFees,
+        feeBreakdown: `Processing ${pct(SHO_PROC * 100)} (${money(shoProc)}) + ads (${money(shopifyAds)})`,
+        profit: shoProfit,
+        margin: price > 0 ? (shoProfit / price) * 100 : 0,
+        platformTake: price > 0 ? (shoFees / price) * 100 : 0,
+      },
+      {
+        id: 'tiktok',
+        name: 'TikTok Shop',
+        href: '/tools/tiktok-shop-fee-calculator/',
+        fees: ttFees,
+        feeBreakdown: `Referral ${pct(TT_REFERRAL * 100)} (${money(ttReferral)}) + affiliate ${pct(TT_AFFILIATE * 100)} (${money(ttAffiliate)}) + ads (${money(tiktokAds)}) + FBT (${money(tiktokFbt)})`,
+        profit: ttProfit,
+        margin: price > 0 ? (ttProfit / price) * 100 : 0,
+        platformTake: price > 0 ? (ttFees / price) * 100 : 0,
+      },
+    ];
+
+    // Sort by profit descending
+    platforms.sort((a, b) => b.profit - a.profit);
+    return platforms;
+  }
+
+  function render() {
+    const platforms = calculate();
+    const maxProfit = Math.max(...platforms.map((p) => Math.max(p.profit, 0)), 0.01);
+
+    const table = $('cmp-table');
+    table.innerHTML = platforms.map((p, i) => {
+      const isBest = i === 0 && p.profit > 0;
+      const isLoss = p.profit < 0;
+      const barWidth = p.profit > 0 ? (p.profit / maxProfit) * 100 : 0;
+      const barColor = p.profit > 0 ? 'var(--green, #2d7a4f)' : 'var(--red, #c0392b)';
+      const profitStr = (p.profit < 0 ? '−' : '') + money(Math.abs(p.profit));
+
+      return `
+        <div class="cmp-row ${isBest ? 'best' : ''} ${isLoss ? 'loss' : ''}">
+          <div class="cmp-rank">${i + 1}</div>
+          <div class="cmp-info">
+            <div class="cmp-name">
+              ${p.name}
+              ${isBest ? '<span class="cmp-best-badge">Best</span>' : ''}
+            </div>
+            <div class="cmp-fee-breakdown">${p.feeBreakdown}</div>
+            <div class="cmp-bar-wrap">
+              <div class="cmp-bar" style="width: ${barWidth}%; background: ${barColor};"></div>
+            </div>
+          </div>
+          <div class="cmp-numbers">
+            <div class="cmp-profit ${p.profit >= 0 ? 'pos' : 'neg'}">${profitStr}</div>
+            <div class="cmp-margin">${pct(p.margin)} margin</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Wire up all inputs
+  ['price', 'cost', 'shipping', 'amazon-fba', 'shopify-ads', 'tiktok-ads', 'tiktok-fbt'].forEach(
+    (id) => $(id).addEventListener('input', render)
+  );
+
+  render();
+</script>
