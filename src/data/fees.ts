@@ -8,7 +8,8 @@
  * Shopify pricing pages, and Etsy's fee help center).
  *
  * Last verified against official sources: 2026-08-26
- *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15)
+ *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
+ *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17)
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
  *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-26)
@@ -36,6 +37,8 @@ export const referralDefault = 15;
  * 2026 rate card varies by size tier AND product price band
  * (under $10 / $10–50 / over $50) — small standard runs roughly
  * $2.56–$3.84, large standard roughly $2.91–$5.66 per unit.
+ * A 3.5% fuel & logistics surcharge (effective 2026-04-17) applies on
+ * top of the fulfillment fee, adding roughly $0.15–$0.35 per unit.
  */
 export const fbaFeeDefault = 5.5;
 
