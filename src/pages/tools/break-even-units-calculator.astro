@@ -1,0 +1,518 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+
+const tool = tools.find((t) => t.slug === 'break-even-units-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'Break-Even Units Calculator — How Many to Sell to Cover Costs | emallsoon';
+const description =
+  'Free break-even units calculator. Enter fixed costs, price, and unit contribution margin to find exactly how many units you must sell to break even. Adjust price and ad spend live. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Break-Even Units Calculator',
+  url: 'https://emallsoon.com/tools/break-even-units-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free break-even units calculator: fixed costs, contribution margin per unit, break-even point in units and revenue, plus margin-of-safety and sensitivity to price and ad spend.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Break-Even Units Calculator', item: 'https://emallsoon.com/tools/break-even-units-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'What is the break-even point in units?',
+    a: 'The break-even point is the number of units you must sell for total contribution margin to exactly equal total fixed costs. At that quantity, profit is zero — every unit sold above it adds profit at the full contribution margin per unit. The formula is: break-even units = fixed costs ÷ contribution margin per unit.',
+  },
+  {
+    q: 'How do I calculate contribution margin per unit?',
+    a: 'Contribution margin per unit = selling price − all variable costs per unit. Variable costs include product cost, platform fees, payment processing, shipping you pay, packaging, and any per-unit ad spend you want to attribute. It does not include fixed costs like subscriptions, salaries, or inventory you already committed to — those are covered by the contribution margin, not part of it.',
+  },
+  {
+    q: 'Should ad spend be in fixed costs or variable costs?',
+    a: 'It depends on how you buy ads. If you have a set monthly ad budget (e.g., $2,000 on Facebook ads regardless of volume), treat it as a fixed cost. If you pay per-unit acquisition (e.g., $5 CAC per order), treat it as a variable cost that reduces contribution margin per unit. Mixing the two — a fixed base plus per-order acquisition — is the most realistic model: put the base in fixed costs and the per-unit portion in variable costs.',
+  },
+  {
+    q: 'What is margin of safety?',
+    a: 'Margin of safety is how far your actual (or projected) sales sit above the break-even point, expressed as a percentage. If you expect to sell 1,000 units and break-even is 600, your margin of safety is 40% — you can lose 40% of expected sales before hitting zero profit. A margin of safety below 15% is risky; above 30% is comfortable.',
+  },
+  {
+    q: 'How does price affect break-even?',
+    a: 'Raising price increases contribution margin per unit, which lowers the break-even quantity — but it can also reduce demand. The practical use is sensitivity analysis: if raising price from $30 to $34 drops your break-even from 500 to 400 units, ask whether the higher price will still attract at least 400 buyers. The calculator lets you adjust price live to see the break-even shift instantly.',
+  },
+  {
+    q: 'What fixed costs should I include?',
+    a: 'Include all costs that do not change with sales volume: monthly subscriptions (Shopify plan, software tools), rent or storage fees, salaries and contractor retainers, insurance, and any committed ad budget. Do not include one-time setup costs (already spent) or inventory purchase (that is captured in variable cost per unit, not fixed). If a cost scales with sales, it is variable, not fixed.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Break-Even Units Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Pricing · free · no signup</p>
+        <h1>Break-Even Units Calculator</h1>
+        <p class="lede">
+          How many units do you need to sell before the business stops losing
+          money? Enter your fixed costs, price, and per-unit variable costs —
+          get the exact break-even quantity, revenue, and how much cushion
+          you have if sales fall short.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="be-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Fixed costs <span class="opt">(per month)</span></p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="f-subscriptions">Subscriptions &amp; software</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="f-subscriptions" value="150" min="0" step="5" inputmode="decimal" />
+                </div>
+                <span class="hint">Shopify plan, tools, SaaS</span>
+              </div>
+              <div class="field">
+                <label for="f-rent">Storage &amp; rent</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="f-rent" value="0" min="0" step="5" inputmode="decimal" />
+                </div>
+                <span class="hint">Warehouse, FBA storage</span>
+              </div>
+              <div class="field">
+                <label for="f-salaries">Salaries &amp; contractors</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="f-salaries" value="0" min="0" step="50" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="f-ads">Ad budget <span class="opt">(fixed)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="f-ads" value="1000" min="0" step="10" inputmode="decimal" />
+                </div>
+                <span class="hint">If CAC-based, use variable instead</span>
+              </div>
+              <div class="field">
+                <label for="f-other">Other fixed</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="f-other" value="0" min="0" step="5" inputmode="decimal" />
+                </div>
+                <span class="hint">Insurance, legal, etc.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Per-unit economics</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="u-price">Selling price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="u-price" value="35.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="u-product">Product cost</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="u-product" value="8.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Landed cost per unit</span>
+              </div>
+              <div class="field">
+                <label for="u-fees">Platform &amp; payment fees</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="u-fees" value="5.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Commission + processing</span>
+              </div>
+              <div class="field">
+                <label for="u-shipping">Shipping per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="u-shipping" value="3.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="u-ads">Ad cost per unit <span class="opt">(optional)</span></label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="u-ads" value="4.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">CAC if per-unit, not fixed</span>
+              </div>
+              <div class="field">
+                <label for="u-other">Other per-unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="u-other" value="0.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Packaging, returns reserve</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Sales projection</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="proj-units">Expected monthly units</label>
+                <div class="input-shell">
+                  <input type="number" id="proj-units" value="150" min="0" step="1" inputmode="numeric" />
+                </div>
+                <span class="hint">Your realistic sales forecast</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">Break-Even Receipt</p>
+                <p class="rh-sub">monthly · live</p>
+              </div>
+
+              <div class="rline rline--meta"><span class="rl-label">Fixed costs</span><span class="rl-dots"></span><span class="rl-val" id="r-fixed">$0</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Variable cost / unit</span><span class="rl-dots"></span><span class="rl-val" id="r-variable">$0.00</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Contribution / unit</span><span class="rl-dots"></span><span class="rl-val" id="r-contrib">$0.00</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Contribution margin</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Break-even units</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-be-units" aria-live="polite">0</span>
+              </div>
+              <div class="rline rline--meta"><span class="rl-label">Break-even revenue</span><span class="rl-dots"></span><span class="rl-val" id="r-be-rev">$0</span></div>
+
+              <div class="rline rline--total" id="l-profit">
+                <span class="rl-label">Profit at projection</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0</span>
+              </div>
+              <div class="rline rline--meta" id="l-mos"><span class="rl-label">Margin of safety</span><span class="rl-dots"></span><span class="rl-val" id="r-mos">0%</span></div>
+
+              <div class="verdict pos" id="r-verdict">profitable ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Contribution margin is only as good as your cost inputs.
+                Include all per-unit fees for a realistic break-even.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>The number that tells you if your business works</h2>
+        <p>
+          Break-even analysis answers one question: how many units must I sell
+          before total profit crosses zero? It is the single most important
+          number in deciding whether a product, a price, or an entire business
+          is viable — and it is the number most sellers skip before placing
+          inventory orders.
+        </p>
+
+        <h3>The core formula</h3>
+        <p>
+          Every unit you sell contributes a slice of money toward covering
+          fixed costs. That slice — the <strong>contribution margin per
+          unit</strong> — is what is left after all variable costs are
+          deducted from the price:
+        </p>
+        <div class="formula-box">
+          contribution / unit = price − (product + fees + shipping + per-unit ads + other)
+        </div>
+        <p>
+          Fixed costs are everything that does not change with volume:
+          subscriptions, rent, salaries, committed ad budgets. Divide total
+          fixed costs by contribution per unit and you get the exact quantity
+          at which the business stops losing money:
+        </p>
+        <div class="formula-box">
+          break-even units = fixed costs ÷ contribution per unit
+        </div>
+
+        <h3>Why contribution margin, not gross margin</h3>
+        <p>
+          Gross margin (price minus product cost) ignores fees, shipping, and
+          ad spend — the three line items that eat most of the remaining
+          profit. A product with a 70% gross margin can have a 25%
+          contribution margin after Amazon's 15% referral, $5 fulfillment,
+          $3.50 shipping, and $4 in ad cost. Break-even computed on gross
+          margin will tell you a comforting lie; break-even on contribution
+          margin tells you the truth.
+        </p>
+
+        <h3>Margin of safety: your risk buffer</h3>
+        <p>
+          If you project 200 units/month and break-even is 150, your margin
+          of safety is 25% — you can lose a quarter of expected sales and
+          still not lose money. Below 15% is a red flag: any miss in demand,
+          any fee increase, any ad cost spike pushes you underwater. Above
+          30% means you have room to experiment with pricing or ad spend
+          without existential risk.
+        </p>
+        <div class="formula-box">
+          margin of safety = (projected units − break-even) ÷ projected units × 100
+        </div>
+
+        <h3>The price lever</h3>
+        <p>
+          Price is the most powerful break-even lever because it changes
+          contribution margin on every unit simultaneously. Raising price
+          from $30 to $34 on a product with $16 in variable costs increases
+          contribution from $14 to $18 — a 29% improvement that can drop
+          break-even by 50+ units. The trade-off is demand: a higher price
+          may shrink the customer pool. Use the calculator to model the
+          break-even at different price points, then ask the harder question
+          — can I still sell that many at this price?
+        </p>
+
+        <h3>Ad spend: fixed or variable?</h3>
+        <p>
+          This is the most common confusion in break-even math. If you run
+          a fixed monthly ad budget ("$2,000 on Facebook regardless of
+          outcome"), it is a fixed cost — it does not change with units
+          sold. If you pay a known cost-per-acquisition ("$4 per order
+          from branded search"), it is a variable cost that reduces
+          contribution per unit. Real businesses often have both: a fixed
+          base for awareness, plus per-unit CAC for conversion. Put the
+          base in fixed costs and the per-unit portion in the ad-cost
+          field — the calculator handles the rest.
+        </p>
+
+        <h3>What break-even cannot tell you</h3>
+        <p>
+          Break-even tells you the quantity needed, not whether you can
+          achieve it. It is a necessary but not sufficient test. Pair it
+          with the <a href="/tools/roas-break-even-calculator/">ROAS
+          break-even calculator</a> to check whether your ad efficiency can
+          deliver the traffic, and with the <a
+          href="/tools/discount-pricing-calculator/">discount pricing
+          calculator</a> to see how promotions shift the break-even line.
+          Together, the three tools answer the pricing-advertising-volume
+          triangle that every product launch must solve.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>Break-even calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .opt {
+    font-weight: 400;
+    opacity: 0.6;
+    font-size: 0.85em;
+  }
+</style>
+
+<script>
+  function $<T extends HTMLElement = HTMLInputElement>(id: string): T {
+    return document.getElementById(id) as T;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: n % 1 === 0 ? 0 : 2 });
+  const money2 = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+  const num = (n: number) => Math.ceil(n).toLocaleString('en-US');
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  function recalc() {
+    const fixed =
+      read('f-subscriptions') + read('f-rent') + read('f-salaries') + read('f-ads') + read('f-other');
+
+    const price = read('u-price');
+    const variable =
+      read('u-product') + read('u-fees') + read('u-shipping') + read('u-ads') + read('u-other');
+
+    const contrib = price - variable;
+    const marginPct = price > 0 ? (contrib / price) * 100 : 0;
+
+    const beUnits = contrib > 0 ? fixed / contrib : Infinity;
+    const beRev = beUnits * price;
+
+    const proj = read('proj-units');
+    const profit = proj * contrib - fixed;
+    const mos = proj > beUnits ? ((proj - beUnits) / proj) * 100 : 0;
+
+    $('r-fixed').textContent = money(fixed);
+    $('r-variable').textContent = money2(variable);
+    $('r-contrib').textContent = money2(contrib);
+    $('r-margin').textContent = pct(marginPct);
+
+    const beEl = $('be-units') as any || $('r-be-units');
+    if (Number.isFinite(beUnits)) {
+      $('r-be-units').textContent = num(beUnits);
+      $('r-be-rev').textContent = money(beRev);
+    } else {
+      $('r-be-units').textContent = '—';
+      $('r-be-rev').textContent = '—';
+    }
+
+    const profitEl = $('r-profit');
+    if (proj > 0) {
+      profitEl.textContent = (profit < 0 ? '−' : '') + money(Math.abs(profit));
+      profitEl.classList.toggle('pos', profit >= 0);
+      profitEl.classList.toggle('neg', profit < 0);
+
+      const mosEl = $('r-mos');
+      mosEl.textContent = proj > beUnits && Number.isFinite(beUnits) ? pct(mos) : '0%';
+
+      const showMos = document.getElementById('l-mos');
+      if (showMos) showMos.hidden = false;
+    } else {
+      profitEl.textContent = '$0';
+      const showMos = document.getElementById('l-mos');
+      if (showMos) showMos.hidden = true;
+    }
+
+    const verdict = $('r-verdict');
+    if (contrib <= 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'negative margin — cannot break even ✕';
+    } else if (proj === 0) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'enter projection to assess';
+    } else if (profit < 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = `need ${num(beUnits)} units — ${num(beUnits - proj)} short ✕`;
+    } else if (mos >= 30) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'comfortable — 30%+ safety ✓';
+    } else if (mos >= 15) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'profitable — moderate safety';
+    } else {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'barely profitable — thin safety';
+    }
+  }
+
+  ['f-subscriptions', 'f-rent', 'f-salaries', 'f-ads', 'f-other', 'u-price', 'u-product', 'u-fees', 'u-shipping', 'u-ads', 'u-other', 'proj-units'].forEach(
+    (id) => $(id).addEventListener('input', recalc)
+  );
+
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'Break-even analysis (emallsoon.com)',
+      `Fixed costs:           ${$('r-fixed').textContent}`,
+      `Variable cost/unit:   ${$('r-variable').textContent}`,
+      `Contribution/unit:    ${$('r-contrib').textContent}`,
+      `Contribution margin:  ${$('r-margin').textContent}`,
+      `Break-even units:     ${$('r-be-units').textContent}`,
+      `Break-even revenue:   ${$('r-be-rev').textContent}`,
+      `Profit at projection: ${$('r-profit').textContent}`,
+      `Margin of safety:     ${$('r-mos').textContent}`,
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  recalc();
+</script>

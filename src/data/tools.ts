@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   /** path on the site, with trailing slash */
   href: string;
-  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount';
+  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven';
 }
 
 export const tools: Tool[] = [
@@ -59,6 +59,16 @@ export const tools: Tool[] = [
       'Price percentage-off, BOGO, and spend-threshold deals against your real margin. See profit per unit after the discount and the maximum you can afford to give.',
     href: '/tools/discount-pricing-calculator/',
     icon: 'discount',
+  },
+  {
+    slug: 'break-even-units-calculator',
+    name: 'Break-Even Units Calculator',
+    shortName: 'Break-Even',
+    tag: 'Pricing',
+    description:
+      'Find the exact number of units you must sell to cover fixed costs. See how price, margin, and ad spend shift your break-even point — before you commit inventory.',
+    href: '/tools/break-even-units-calculator/',
+    icon: 'breakeven',
   },
 ];
 
