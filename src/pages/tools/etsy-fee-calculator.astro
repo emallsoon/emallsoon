@@ -1,0 +1,430 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+import {
+  etsyListingFee,
+  etsyTransactionPct,
+  etsyProcessingPct,
+  etsyProcessingFlat,
+  offsiteAdsOptions,
+} from '../../data/fees';
+
+const tool = tools.find((t) => t.slug === 'etsy-fee-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'Etsy Fee Calculator — Listing, Transaction & Payment Fees | emallsoon';
+const description =
+  'Free Etsy fee calculator. Add the $0.20 listing fee, 6.5% transaction fee, payment processing, and Offsite Ads to see real profit per sale. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Etsy Fee & Profit Calculator',
+  url: 'https://emallsoon.com/tools/etsy-fee-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free Etsy fee and profit calculator: listing fees, transaction fees, payment processing, and Offsite Ads, with profit and margin per sale.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Etsy Fee Calculator', item: 'https://emallsoon.com/tools/etsy-fee-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'What fees does Etsy charge per sale?',
+    a: 'On a typical US sale you pay: a $0.20 listing fee per quantity sold, a 6.5% transaction fee on the order total (item price plus shipping), a payment processing fee (around 3% + $0.25 in the US), and an Offsite Ads fee of 12–15% if the order came from an offsite ad. Regional operating fees may apply in some countries.',
+  },
+  {
+    q: 'How is the 6.5% transaction fee calculated?',
+    a: 'It applies to the order total including the shipping you charge and gift wrap, plus sales tax where applicable — not just the item price. Free-shipping listings therefore pay the fee on the full bundled price either way.',
+  },
+  {
+    q: 'When do Offsite Ads fees apply?',
+    a: 'If Etsy advertised your item off-platform (Google, Facebook, etc.) and the buyer clicked through, you pay an Offsite Ads fee: 15% if your 12-month revenue is under $10,000 (participation is mandatory), or 12% if you are above $10,000 and opted in.',
+  },
+  {
+    q: 'Is the listing fee charged once or per item?',
+    a: 'The $0.20 listing fee is charged when the listing is published and again per quantity sold in an order — so a single order of 3 units incurs $0.60 in listing fees. Renewals also cost $0.20.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Etsy Fee Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Etsy · free · no signup</p>
+        <h1>Etsy Fee &amp; Profit Calculator</h1>
+        <p class="lede">
+          Etsy's fee stack looks small until you stack it: listing,
+          transaction, processing, and possibly Offsite Ads. Enter a sale and
+          see exactly what lands in your pocket.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="etsy-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">The sale</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="price">Item price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="price" value="24.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="ship-charge">Shipping charged to buyer</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="ship-charge" value="4.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="qty">Quantity in the order</label>
+                <div class="input-shell">
+                  <input type="number" id="qty" value="1" min="1" step="1" inputmode="numeric" />
+                  <span class="affix">× item</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Your costs</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="cost">Product cost per item</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="cost" value="8.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="ship-cost">Shipping cost you pay</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="ship-cost" value="3.20" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Per order, not multiplied by quantity</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Fees</p>
+            <div class="form-grid">
+              <div class="field span-2">
+                <label for="offsite">Offsite Ads fee</label>
+                <div class="input-shell select-shell">
+                  <select id="offsite">
+                    {offsiteAdsOptions.map((o) => <option value={o.pct}>{o.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="listing">Listing fee (per item)</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="listing" value={etsyListingFee} min="0" step="0.05" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="txn">Transaction fee (%)</label>
+                <div class="input-shell">
+                  <input type="number" id="txn" value={etsyTransactionPct} min="0" max="100" step="0.1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="proc-pct">Processing (%)</label>
+                <div class="input-shell">
+                  <input type="number" id="proc-pct" value={etsyProcessingPct} min="0" max="100" step="0.1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">US: 3% + $0.25 (varies by country)</span>
+              </div>
+              <div class="field">
+                <label for="proc-flat">Processing fixed fee</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="proc-flat" value={etsyProcessingFlat} min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">Etsy Order Receipt</p>
+                <p class="rh-sub">whole order · live</p>
+              </div>
+
+              <div class="rline"><span class="rl-label">Order total</span><span class="rl-dots"></span><span class="rl-val" id="r-total">$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Listing fees</span><span class="rl-dots"></span><span class="rl-val" id="r-listing">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Transaction 6.5%</span><span class="rl-dots"></span><span class="rl-val" id="r-txn">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Payment processing</span><span class="rl-dots"></span><span class="rl-val" id="r-proc">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Offsite Ads fee</span><span class="rl-dots"></span><span class="rl-val" id="r-offsite">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Product cost</span><span class="rl-dots"></span><span class="rl-val" id="r-cost">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Shipping cost</span><span class="rl-dots"></span><span class="rl-val" id="r-ship">−$0.00</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Profit / order</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0.00</span>
+              </div>
+
+              <div class="rline rline--meta"><span class="rl-label">Profit margin</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Total Etsy fees</span><span class="rl-dots"></span><span class="rl-val" id="r-fees">$0.00</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Fees as % of order</span><span class="rl-dots"></span><span class="rl-val" id="r-feepct">0%</span></div>
+
+              <div class="verdict pos" id="r-verdict">healthy margin ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Payment processing rates vary by country. Regional operating
+                fees (UK, FR, IT, ES, TR) are not included — verify exact rates
+                in your Etsy payment account.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>Four fees, one small sale</h2>
+        <p>
+          Etsy charges fees at different layers of one order. The
+          <strong>listing fee</strong> ($0.20) is per item sold. The
+          <strong>transaction fee</strong> (6.5%) applies to the order total —
+          item price <em>plus</em> shipping you charge. <strong>Payment
+          processing</strong> is a percentage plus a fixed amount, set by
+          country. And <strong>Offsite Ads</strong> (12–15%) applies only when
+          Etsy's external advertising brought the buyer.
+        </p>
+
+        <h3>Profit per order</h3>
+        <div class="formula-box">
+          profit = (items × price + shipping_charged) − listing − transaction − processing − offsite − (items × cost + shipping_cost)
+        </div>
+
+        <h3>Why Offsite Ads stings</h3>
+        <p>
+          At 15%, an Offsite Ads order can consume a quarter of a typical
+          handmade margin. The fee is charged on the full order value, so a
+          $40 order with free shipping hands Etsy $6 in Offsite fees alone —
+          on top of everything else. If a large share of your orders arrives
+          through Offsite Ads, your real blended margin sits well below the
+          sticker margin.
+        </p>
+
+        <h3>Quantity matters</h3>
+        <p>
+          Listing fees scale with quantity sold, but processing has a fixed
+          component per order. That's why multi-item orders carry a materially
+          better margin than single-item orders — one reason bundle offers
+          work so well on Etsy.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>Etsy calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .select-shell select {
+    width: 100%;
+  }
+</style>
+
+<script>
+  function $(id: string) {
+    return document.getElementById(id) as HTMLInputElement;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  let lastProfit: number | null = null;
+
+  function recalc() {
+    const price = read('price');
+    const shipCharge = read('ship-charge');
+    const qty = Math.max(1, Math.floor(read('qty') || 1));
+    const cost = read('cost');
+    const shipCost = read('ship-cost');
+    const listing = read('listing');
+    const txnPct = Math.min(read('txn'), 100);
+    const procPct = Math.min(read('proc-pct'), 100);
+    const procFlat = read('proc-flat');
+    const offsitePct = parseFloat($('offsite').value) || 0;
+
+    const orderTotal = price * qty + shipCharge;
+    const listingFee = listing * qty;
+    const txn = orderTotal * (txnPct / 100);
+    const proc = orderTotal > 0 ? orderTotal * (procPct / 100) + procFlat : 0;
+    const offsite = orderTotal * (offsitePct / 100);
+    const productCost = cost * qty;
+    const totalFees = listingFee + txn + proc + offsite;
+    const profit = orderTotal - totalFees - productCost - shipCost;
+    const margin = orderTotal > 0 ? (profit / orderTotal) * 100 : 0;
+
+    $('r-total').textContent = money(orderTotal);
+    $('r-listing').textContent = `−${money(listingFee)}`;
+    $('r-txn').textContent = `−${money(txn)}`;
+    $('r-proc').textContent = `−${money(proc)}`;
+    $('r-offsite').textContent = `−${money(offsite)}`;
+    $('r-cost').textContent = `−${money(productCost)}`;
+    $('r-ship').textContent = `−${money(shipCost)}`;
+
+    const profitEl = $('r-profit');
+    profitEl.textContent = (profit < 0 ? '−' : '') + money(Math.abs(profit));
+    profitEl.classList.toggle('pos', profit >= 0);
+    profitEl.classList.toggle('neg', profit < 0);
+
+    $('r-margin').textContent = pct(margin);
+    $('r-fees').textContent = money(totalFees);
+    $('r-feepct').textContent = orderTotal > 0 ? pct((totalFees / orderTotal) * 100) : '0%';
+
+    const verdict = $('r-verdict');
+    if (margin >= 30) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'healthy margin ✓';
+    } else if (margin >= 15) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'workable margin for handmade';
+    } else if (profit >= 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'thin margin — revisit pricing';
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'losing money on this order ✕';
+    }
+
+    if (lastProfit !== null && Math.abs(profit - lastProfit) > 0.001) {
+      profitEl.classList.remove('flash');
+      void profitEl.offsetWidth;
+      profitEl.classList.add('flash');
+    }
+    lastProfit = profit;
+  }
+
+  ['price', 'ship-charge', 'qty', 'cost', 'ship-cost', 'listing', 'txn', 'proc-pct', 'proc-flat', 'offsite'].forEach(
+    (id) => $(id).addEventListener('input', recalc)
+  );
+
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'Etsy order economics (emallsoon.com)',
+      `Order total:       ${$('r-total').textContent}`,
+      `Listing fees:      ${$('r-listing').textContent}`,
+      `Transaction fee:   ${$('r-txn').textContent}`,
+      `Payment process.:  ${$('r-proc').textContent}`,
+      `Offsite Ads fee:   ${$('r-offsite').textContent}`,
+      `Product cost:      ${$('r-cost').textContent}`,
+      `Shipping cost:     ${$('r-ship').textContent}`,
+      `Profit/order:      ${$('r-profit').textContent}`,
+      `Margin:            ${$('r-margin').textContent}`,
+      `Total Etsy fees:   ${$('r-fees').textContent} (${$('r-feepct').textContent})`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(lines);
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  recalc();
+</script>

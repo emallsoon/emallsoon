@@ -1,0 +1,27 @@
+---
+import type { Tool } from '../data/tools';
+interface Props {
+  tool: Tool;
+  delayClass?: string;
+}
+const { tool, delayClass = '' } = Astro.props;
+
+const icons: Record<Tool['icon'], string> = {
+  fba: `<path d="M7 4.5v11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4.5 7L7 4.5 9.5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 15.5v-11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14.5 13L17 15.5 19.5 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19.5h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+  shopify: `<path d="M6 4.5h12v15H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 9.5h5M9.5 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 4.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+  etsy: `<circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2"/><path d="M9.5 8.5h5M9.5 8.5c2 4.5 2 7 0 7h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+  roas: `<path d="M4 19.5L9.5 14M4 19.5v-4M4 19.5h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4.5L14.5 10M20 4.5v4M20 4.5h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 7.5l3 3M17 16.5l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+};
+---
+
+<a href={tool.href} class={`tool-card rise ${delayClass}`}>
+  <div class="tc-top">
+    <span class="tc-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" set:html={icons[tool.icon]} />
+    </span>
+    <span class="tc-tag">{tool.tag}</span>
+  </div>
+  <h3>{tool.name}</h3>
+  <p>{tool.description}</p>
+  <span class="tc-cta">Open tool <span class="arr">→</span></span>
+</a>

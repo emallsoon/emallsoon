@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** canonical path, e.g. "/tools/etsy-fee-calculator/" */
+  path: string;
+  ogType?: 'website' | 'article';
+  /** extra JSON-LD objects to embed */
+  jsonLd?: object[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  ogType = 'website',
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL('https://emallsoon.com');
+const canonical = new URL(path, site).href;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'emallsoon',
+  url: site.href,
+  description:
+    'Free profit, fee, and margin calculators for Amazon FBA, Shopify, Etsy, and paid ads. No signup — everything runs in your browser.',
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#faf7ef" />
+
+    <!-- og -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="emallsoon" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Archivo:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
+    {
+      jsonLd.map((obj) => (
+        <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+      ))
+    }
+  </head>
+  <body>
+    <SiteHeader />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

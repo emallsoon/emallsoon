@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found | emallsoon"
+  description="The page you were looking for does not exist. Head back to the free e-commerce calculators."
+  path="/404"
+  noindex
+>
+  <section class="section">
+    <div class="wrap nf">
+      <p class="eyebrow">Error 404</p>
+      <h1>This receipt is blank</h1>
+      <p class="lede">
+        The page you asked for doesn't exist — maybe a fee ate it. The
+        calculators are all still here, though.
+      </p>
+      <div class="nf-actions">
+        <a href="/" class="btn btn--primary">Back to the calculators <span class="arr">→</span></a>
+        <a href="/tools/amazon-fba-profit-calculator/" class="btn btn--ghost">FBA calculator</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    max-width: 640px;
+    display: grid;
+    gap: 16px;
+    padding-top: 40px;
+  }
+
+  .nf-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+</style>

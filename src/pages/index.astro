@@ -1,0 +1,363 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+import { tools } from '../data/tools';
+
+const title = 'Free E-commerce Profit Calculators for Sellers | emallsoon';
+const description =
+  'Free Amazon FBA, Shopify, Etsy fee and ad ROAS calculators. See real profit, margin, and break-even price before you sell. No signup — runs in your browser.';
+
+const faqs = [
+  {
+    q: 'Are these calculators really free?',
+    a: 'Yes — every calculator on emallsoon is free, with no signup, no email wall, and no usage limits. The tools run entirely in your browser, so your numbers never touch a server.',
+  },
+  {
+    q: 'How accurate are the fee rates?',
+    a: 'We prefill each calculator with current published fee structures (Amazon referral and FBA fees, Shopify plan transaction fees, Etsy listing/transaction/payment fees). Rates change often and vary by category and country, so every field is editable — treat the defaults as a starting point and verify exact rates in Seller Central or your platform dashboard.',
+  },
+  {
+    q: 'Do you store the numbers I enter?',
+    a: 'No. All math happens locally in your browser with JavaScript. Nothing is sent to, or stored on, any server.',
+  },
+  {
+    q: 'Which platforms do the tools cover?',
+    a: 'Amazon FBA, Shopify, Etsy, and paid-ad ROAS math that applies to any platform. More calculators are added regularly — profit margin, break-even units, and discount pricing tools are on the roadmap.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout title={title} description={description} path="/" jsonLd={[faqJsonLd]}>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow rise">Free tools · No signup · Zero data collected</p>
+        <h1 class="rise rise-1">
+          Know your <em>real</em> profit <span class="h1-break">before you sell.</span>
+        </h1>
+        <p class="lede rise rise-2">
+          Referral fees, fulfillment, payment processing, Offsite Ads — platforms
+          take their cut before you ever see a dollar. Run the numbers first,
+          then decide what to list, where, and at what price.
+        </p>
+        <div class="hero-actions rise rise-3">
+          <a href="/tools/amazon-fba-profit-calculator/" class="btn btn--primary">
+            Start with the FBA calculator <span class="arr">→</span>
+          </a>
+          <a href="#tools" class="btn btn--ghost">Browse all tools</a>
+        </div>
+        <ul class="hero-stats rise rise-4">
+          <li><strong class="num">4</strong> seller calculators</li>
+          <li><strong class="num">$0</strong> forever, no account</li>
+          <li><strong class="num">100%</strong> in-browser math</li>
+        </ul>
+      </div>
+
+      <!-- mini receipt showcase -->
+      <div class="hero-receipt rise rise-2" aria-hidden="true">
+        <div class="receipt">
+          <div class="receipt-inner">
+            <div class="receipt-head">
+              <p class="rh-title">Unit Economics</p>
+              <p class="rh-sub">the whole story</p>
+            </div>
+            <div class="rline"><span class="rl-label">Sale price</span><span class="rl-dots"></span><span class="rl-val">$29.99</span></div>
+            <div class="rline rline--fee"><span class="rl-label">Referral fee 15%</span><span class="rl-dots"></span><span class="rl-val">−$4.50</span></div>
+            <div class="rline rline--fee"><span class="rl-label">FBA fulfillment</span><span class="rl-dots"></span><span class="rl-val">−$5.50</span></div>
+            <div class="rline rline--fee"><span class="rl-label">Inbound shipping</span><span class="rl-dots"></span><span class="rl-val">−$1.20</span></div>
+            <div class="rline rline--fee"><span class="rl-label">Product cost</span><span class="rl-dots"></span><span class="rl-val">−$8.50</span></div>
+            <div class="rline rline--fee"><span class="rl-label">Storage &amp; other</span><span class="rl-dots"></span><span class="rl-val">−$0.85</span></div>
+            <div class="rline rline--total">
+              <span class="rl-label">Your profit</span>
+              <span class="rl-dots"></span>
+              <span class="rl-val pos num">$9.44</span>
+            </div>
+            <div class="rline rline--meta"><span class="rl-label">Margin</span><span class="rl-dots"></span><span class="rl-val">31.5%</span></div>
+            <div class="verdict pos">margin worth selling for ✓</div>
+          </div>
+          <div class="tear"></div>
+        </div>
+        <span class="stamp hero-stamp">calculated<br />first</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TICKER ============ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      {
+        Array(2).fill(0).map(() => (
+          <>
+            <span>Amazon FBA</span>
+            <span>Shopify</span>
+            <span>Etsy</span>
+            <span>Offsite Ads</span>
+            <span>Referral fees</span>
+            <span>Break-even ROAS</span>
+            <span>Contribution margin</span>
+            <span>Payment processing</span>
+            <span>Unit economics</span>
+            <span>Paid traffic</span>
+          </>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- ============ TOOLS ============ -->
+  <section class="section" id="tools">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The toolbox</p>
+          <h2>Pick the math you need</h2>
+        </div>
+        <p>
+          Every calculator is live — change any number and the receipt updates
+          instantly. Nothing to install, nothing to sign up for.
+        </p>
+      </div>
+      <div class="tool-grid">
+        {tools.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY ============ -->
+  <section class="section why">
+    <div class="wrap">
+      <div class="why-grid">
+        <div class="why-copy">
+          <p class="eyebrow">Why sellers calculate first</p>
+          <h2>A $30 sale is rarely $30</h2>
+          <p class="prose-p">
+            Most listings die from optimistic math: sellers price against the
+            sticker, not against the fee stack. By the time referral fees,
+            fulfillment, processing, storage, and inbound freight take their
+            share, a "healthy" price can leave you working for free.
+          </p>
+          <p class="prose-p">
+            The fix is boring and effective: run unit economics
+            <em>before</em> you buy inventory or launch ads. Every tool here
+            exists to answer one question — after everyone takes their cut,
+            what's left for you?
+          </p>
+        </div>
+        <ol class="why-list">
+          <li>
+            <span class="wl-num num">01</span>
+            <div>
+              <h3>Price with the fee stack, not against it</h3>
+              <p>See every deduction line by line, exactly like the receipt.</p>
+            </div>
+          </li>
+          <li>
+            <span class="wl-num num">02</span>
+            <div>
+              <h3>Find your break-even before you commit</h3>
+              <p>Know the minimum viable price for any product, ad, or channel.</p>
+            </div>
+          </li>
+          <li>
+            <span class="wl-num num">03</span>
+            <div>
+              <h3>Compare platforms on true margin</h3>
+              <p>The same product can be profitable on Etsy and a loss on Amazon.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section--tight section" id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>Frequently asked</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 84px 0 64px;
+    overflow: hidden;
+    background:
+      radial-gradient(900px 420px at 85% -10%, rgba(20, 99, 68, 0.09), transparent 65%),
+      radial-gradient(600px 380px at -10% 110%, rgba(163, 118, 15, 0.06), transparent 60%);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 56px;
+    align-items: center;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 44px;
+    }
+
+    .hero {
+      padding: 60px 0 48px;
+    }
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--green);
+    font-weight: 640;
+  }
+
+  .h1-break {
+    display: inline-block;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  .hero-stats {
+    list-style: none;
+    display: flex;
+    gap: 28px;
+    padding: 0;
+    margin: 34px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .hero-stats li {
+    font-size: 0.85rem;
+    color: var(--ink-3);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .hero-stats strong {
+    font-size: 1.25rem;
+    color: var(--ink);
+    font-weight: 640;
+  }
+
+  /* receipt showcase */
+  .hero-receipt {
+    position: relative;
+    transform: rotate(-1.6deg);
+    max-width: 400px;
+    margin-left: auto;
+  }
+
+  @media (max-width: 900px) {
+    .hero-receipt {
+      margin: 0 auto;
+    }
+  }
+
+  .hero-stamp {
+    position: absolute;
+    right: -14px;
+    bottom: 46px;
+    font-size: 0.62rem;
+    text-align: center;
+    line-height: 1.5;
+    padding: 8px 12px;
+  }
+
+  /* ---------- why ---------- */
+  .why {
+    background: var(--paper-deep);
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 56px;
+  }
+
+  @media (max-width: 900px) {
+    .why-grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+  }
+
+  .prose-p {
+    color: var(--ink-2);
+    margin-top: 18px;
+    max-width: 52ch;
+  }
+
+  .why-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    counter-reset: why;
+  }
+
+  .why-list li {
+    display: flex;
+    gap: 20px;
+    padding: 22px 0;
+    border-bottom: 1.5px dashed var(--line-strong);
+  }
+
+  .why-list li:last-child {
+    border-bottom: 0;
+  }
+
+  .wl-num {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--green);
+    padding-top: 2px;
+  }
+
+  .why-list h3 {
+    font-size: 1.12rem;
+    margin-bottom: 4px;
+  }
+
+  .why-list p {
+    color: var(--ink-2);
+    font-size: 0.92rem;
+  }
+</style>

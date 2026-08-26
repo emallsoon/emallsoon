@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'About emallsoon — Free Seller Calculators & Methodology';
+const description =
+  'Why emallsoon exists: free, private, no-signup profit calculators for online sellers. How the math works, how fees are sourced, and what is on the roadmap.';
+---
+
+<BaseLayout title={title} description={description} path="/about/">
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <span>About</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">About</p>
+        <h1>Calculators built by sellers, for sellers</h1>
+        <p class="lede">
+          emallsoon exists because every seller makes the same expensive
+          discovery: the price on the tag is not the money in your pocket.
+        </p>
+      </header>
+
+      <div class="prose">
+        <h2>Why this site exists</h2>
+        <p>
+          Platform fee structures are designed to be felt, not calculated.
+          Referral percentages that scale with your price, fulfillment tiers
+          that change with a packaging tweak, Offsite Ads that quietly take
+          15% of a random quarter of your orders — each deduction looks small,
+          and together they decide whether a business works.
+        </p>
+        <p>
+          Most fee calculators online are lead magnets: enter your email, get
+          a number, receive drip marketing forever. These tools are the
+          opposite. No account, no email wall, no tracking of your numbers —
+          every calculator runs entirely in your browser and the math is
+          documented right below each one.
+        </p>
+
+        <h2>Methodology</h2>
+        <p>
+          Every calculator starts from the platform's <strong>published fee
+          schedule</strong> (Amazon Seller Central, Shopify pricing docs, Etsy
+          fee help center) and then does one honest thing: leaves every field
+          editable. Fee rates change constantly and vary by category, size,
+          country, and plan — a calculator that hides its assumptions is a
+          calculator you should not trust. Each tool page shows its formulas
+          in plain text, and the <a href="/#faq">FAQ</a> covers the common
+          edge cases.
+        </p>
+        <p>
+          When a platform revises its fees, the defaults here are updated —
+          but you should always sanity-check against your own account before
+          committing real money to inventory or ad budgets.
+        </p>
+
+        <h2>Privacy</h2>
+        <p>
+          There is no account system and no server-side calculation. The
+          numbers you type never leave your device. The site is served as
+          static files from a CDN; that is the entire infrastructure.
+        </p>
+
+        <h2>Roadmap</h2>
+        <ul>
+          <li>Break-even units calculator — how many sales until fixed costs are covered</li>
+          <li>Discount pricing calculator — what a 20% coupon really costs you</li>
+          <li>Amazon storage fee estimator (monthly + long-term)</li>
+          <li>Platform comparison — the same product on Amazon vs. Shopify vs. Etsy</li>
+        </ul>
+
+        <h2>Contact</h2>
+        <p>
+          Found a wrong default, a broken formula, or a calculator you wish
+          existed? The best way to reach us is wherever you found this site —
+          and if you found it in a seller community, that community is
+          probably where the feedback thread lives too.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 48px;
+    display: grid;
+    gap: 14px;
+  }
+</style>

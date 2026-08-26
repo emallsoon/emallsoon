@@ -1,0 +1,450 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+import { referralPresets, referralDefault, fbaFeeDefault } from '../../data/fees';
+
+const tool = tools.find((t) => t.slug === 'amazon-fba-profit-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug);
+
+const title = 'Amazon FBA Profit Calculator (Free, No Signup) | emallsoon';
+const description =
+  'Free Amazon FBA profit calculator. Enter price, product cost, and fees to see profit per unit, margin, ROI, break-even price, and monthly profit. Runs in your browser.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Amazon FBA Profit Calculator',
+  url: 'https://emallsoon.com/tools/amazon-fba-profit-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free Amazon FBA profit calculator: profit per unit, margin, ROI, break-even price, and monthly profit estimate.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Amazon FBA Profit Calculator', item: 'https://emallsoon.com/tools/amazon-fba-profit-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'How is FBA profit calculated?',
+    a: 'Profit per unit = selling price − referral fee − FBA fulfillment fee − monthly storage (per unit) − inbound shipping per unit − product cost − other costs per unit. The referral fee is a percentage of your selling price, which is why your break-even price rises faster than fixed costs alone.',
+  },
+  {
+    q: 'What is a good profit margin for Amazon FBA?',
+    a: 'Most experienced sellers aim for at least 15–20% net margin after all fees and product cost, with 25%+ considered healthy. Anything under 10% leaves little room for advertising, returns, and fee changes.',
+  },
+  {
+    q: 'What ROI should I target?',
+    a: 'A common benchmark is 50–100% ROI on your cash investment (product cost plus inbound shipping). Below that, inventory cycles tie up capital faster than it earns.',
+  },
+  {
+    q: 'Are the fee defaults current?',
+    a: 'They are editable estimates based on published US fee schedules. Referral fees and FBA fulfillment fees change regularly and vary by category and size tier — always verify exact rates in Seller Central (Revenue Calculator) before committing to inventory.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Amazon FBA Profit Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Amazon FBA · free · no signup</p>
+        <h1>Amazon FBA Profit Calculator</h1>
+        <p class="lede">
+          Enter your price and costs once. See profit per unit, margin, ROI, and
+          your break-even price update live — with every Amazon fee spelled out
+          on the receipt.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <!-- ============ FORM ============ -->
+        <form class="calc-form" id="fba-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Your numbers</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="price">Selling price per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="price" value="29.99" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="cost">Product cost per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="cost" value="8.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">What you pay your supplier, landed</span>
+              </div>
+              <div class="field">
+                <label for="inbound">Inbound shipping per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="inbound" value="1.20" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Freight to Amazon, ÷ units per carton</span>
+              </div>
+              <div class="field">
+                <label for="other">Other costs per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="other" value="0.50" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Prep, photos, PPC, samples…</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Amazon fees</p>
+            <div class="form-grid">
+              <div class="field span-2">
+                <label for="referral">Referral fee (%)</label>
+                <div class="input-shell">
+                  <input type="number" id="referral" value={referralDefault} min="0" max="100" step="0.5" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <div class="chip-row" id="referral-chips">
+                  {
+                    referralPresets.map((p) => (
+                      <button type="button" class="chip" data-pct={p.pct} aria-pressed={p.pct === referralDefault ? 'true' : 'false'}>
+                        {p.label}
+                      </button>
+                    ))
+                  }
+                </div>
+              </div>
+              <div class="field">
+                <label for="fbafee">FBA fulfillment fee per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="fbafee" value={fbaFeeDefault} min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">By size tier — check Seller Central</span>
+              </div>
+              <div class="field">
+                <label for="storage">Monthly storage per unit</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="storage" value="0.20" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Monthly fee ÷ expected sell-through</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Sales pace (optional)</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="units">Units sold per month</label>
+                <div class="input-shell">
+                  <input type="number" id="units" value="100" min="0" step="1" inputmode="numeric" />
+                  <span class="affix">u/mo</span>
+                </div>
+                <span class="hint">Used for the monthly profit estimate</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <!-- ============ RECEIPT ============ -->
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">FBA Profit Receipt</p>
+                <p class="rh-sub">per unit · live</p>
+              </div>
+
+              <div class="rline"><span class="rl-label">Sale price</span><span class="rl-dots"></span><span class="rl-val" id="r-price">$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Referral fee</span><span class="rl-dots"></span><span class="rl-val" id="r-referral">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">FBA fulfillment</span><span class="rl-dots"></span><span class="rl-val" id="r-fbafee">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Storage / unit</span><span class="rl-dots"></span><span class="rl-val" id="r-storage">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Inbound shipping</span><span class="rl-dots"></span><span class="rl-val" id="r-inbound">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Product cost</span><span class="rl-dots"></span><span class="rl-val" id="r-cost">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Other costs</span><span class="rl-dots"></span><span class="rl-val" id="r-other">−$0.00</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Profit / unit</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0.00</span>
+              </div>
+
+              <div class="rline rline--meta"><span class="rl-label">Profit margin</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">ROI on cash cost</span><span class="rl-dots"></span><span class="rl-val" id="r-roi">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Break-even price</span><span class="rl-dots"></span><span class="rl-val" id="r-breakeven">$0.00</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Monthly profit</span><span class="rl-dots"></span><span class="rl-val" id="r-monthly">$0.00</span></div>
+
+              <div class="verdict pos" id="r-verdict">margin worth selling for ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Fee defaults are estimates — verify current referral and
+                fulfillment rates in Seller Central. Storage per unit is an
+                allocation you control.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>The fee stack behind your FBA profit</h2>
+        <p>
+          Amazon takes its share at several points in the lifecycle of a unit,
+          and each deduction behaves differently. The referral fee scales with
+          your <strong>price</strong>; FBA fulfillment scales with <strong>size
+          and weight</strong>; storage scales with <strong>time in the
+          warehouse</strong>; inbound freight and product cost are fixed by your
+          supply chain. A price change therefore changes your fees, not just
+          your revenue — which is exactly why break-even needs the formula, not
+          eyeballing.
+        </p>
+
+        <h3>Profit per unit</h3>
+        <div class="formula-box">
+          profit = price − (referral% × price) − fba_fee − storage − inbound − product_cost − other
+        </div>
+
+        <h3>Break-even price</h3>
+        <p>
+          Because the referral fee is a percentage of price, break-even isn't
+          just "costs plus fees". Solve for the price where profit = 0:
+        </p>
+        <div class="formula-box">
+          break-even price = (fba_fee + storage + inbound + product_cost + other) ÷ (1 − referral%)
+        </div>
+        <p>
+          At a 15% referral fee, every $1 of fixed cost needs roughly $1.18 of
+          price to break even — the multiplier gets worse as the fee rises.
+        </p>
+
+        <h3>Margin vs. ROI</h3>
+        <p>
+          <strong>Margin</strong> is profit divided by price: it tells you how
+          much of each sale you keep. <strong>ROI</strong> is profit divided by
+          your cash cost (product + inbound + other): it tells you how hard your
+          inventory investment works. Margin pays the bills; ROI decides whether
+          the inventory deserves your next order.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>FBA calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RELATED ============ -->
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+</style>
+
+<script>
+  function $(id: string) {
+    return document.getElementById(id) as HTMLInputElement;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  let lastProfit: number | null = null;
+
+  function recalc() {
+    const price = read('price');
+    const cost = read('cost');
+    const inbound = read('inbound');
+    const other = read('other');
+    const referralPct = Math.min(read('referral'), 100);
+    const fbaFee = read('fbafee');
+    const storage = read('storage');
+    const units = read('units');
+
+    const referral = price * (referralPct / 100);
+    const totalFees = referral + fbaFee + storage;
+    const cashCost = cost + inbound + other;
+    const profit = price - totalFees - cashCost;
+    const margin = price > 0 ? (profit / price) * 100 : 0;
+    const roi = cashCost > 0 ? (profit / cashCost) * 100 : 0;
+    const denom = 1 - referralPct / 100;
+    const breakEven = denom > 0 ? (fbaFee + storage + cashCost) / denom : 0;
+    const monthly = profit * units;
+
+    $('r-price').textContent = money(price);
+    $('r-referral').textContent = `−${money(referral)}`;
+    $('r-fbafee').textContent = `−${money(fbaFee)}`;
+    $('r-storage').textContent = `−${money(storage)}`;
+    $('r-inbound').textContent = `−${money(inbound)}`;
+    $('r-cost').textContent = `−${money(cost)}`;
+    $('r-other').textContent = `−${money(other)}`;
+
+    const profitEl = $('r-profit');
+    profitEl.textContent = (profit < 0 ? '−' : '') + money(Math.abs(profit));
+    profitEl.classList.toggle('pos', profit >= 0);
+    profitEl.classList.toggle('neg', profit < 0);
+
+    $('r-margin').textContent = pct(margin);
+    $('r-roi').textContent = pct(roi);
+    $('r-breakeven').textContent = money(breakEven);
+    $('r-monthly').textContent = money(monthly);
+
+    const verdict = $('r-verdict');
+    if (margin >= 20) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'strong margin — worth scaling ✓';
+    } else if (margin >= 10) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'workable margin — watch your ad spend';
+    } else if (profit >= 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'thin margin — risky once ads & returns hit';
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'losing money at this price ✕';
+    }
+
+    if (lastProfit !== null && Math.abs(profit - lastProfit) > 0.001) {
+      profitEl.classList.remove('flash');
+      void profitEl.offsetWidth; // restart animation
+      profitEl.classList.add('flash');
+    }
+    lastProfit = profit;
+  }
+
+  // bind
+  ['price', 'cost', 'inbound', 'other', 'referral', 'fbafee', 'storage', 'units'].forEach(
+    (id) => $(id).addEventListener('input', recalc)
+  );
+
+  // referral presets
+  document.querySelectorAll<HTMLButtonElement>('#referral-chips .chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      document
+        .querySelectorAll<HTMLButtonElement>('#referral-chips .chip')
+        .forEach((c) => c.setAttribute('aria-pressed', 'false'));
+      chip.setAttribute('aria-pressed', 'true');
+      $('referral').value = chip.dataset.pct || '15';
+      recalc();
+    });
+  });
+  $('referral').addEventListener('input', () => {
+    document
+      .querySelectorAll<HTMLButtonElement>('#referral-chips .chip')
+      .forEach((c) => c.setAttribute('aria-pressed', 'false'));
+  });
+
+  // copy summary
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'Amazon FBA unit economics (emallsoon.com)',
+      `Sale price:        ${$('r-price').textContent}`,
+      `Referral fee:      ${$('r-referral').textContent}`,
+      `FBA fulfillment:   ${$('r-fbafee').textContent}`,
+      `Storage/unit:      ${$('r-storage').textContent}`,
+      `Inbound shipping:  ${$('r-inbound').textContent}`,
+      `Product cost:      ${$('r-cost').textContent}`,
+      `Other costs:       ${$('r-other').textContent}`,
+      `Profit/unit:       ${$('r-profit').textContent}`,
+      `Margin:            ${$('r-margin').textContent}`,
+      `ROI:               ${$('r-roi').textContent}`,
+      `Break-even price:  ${$('r-breakeven').textContent}`,
+      `Monthly profit:    ${$('r-monthly').textContent}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(lines);
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  recalc();
+</script>

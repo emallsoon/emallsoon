@@ -1,0 +1,412 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+import { shopifyPlans, shopifyProcessingPct, shopifyProcessingFlat } from '../../data/fees';
+
+const tool = tools.find((t) => t.slug === 'shopify-profit-margin-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'Shopify Profit Margin Calculator (Fees, Break-Even) | emallsoon';
+const description =
+  'Free Shopify profit margin calculator with plan transaction fees and payment processing. See profit per order, margin, markup, and break-even price. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Shopify Profit Margin Calculator',
+  url: 'https://emallsoon.com/tools/shopify-profit-margin-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free Shopify profit margin calculator including transaction fees, payment processing, margin, markup, and break-even price.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Shopify Profit Margin Calculator', item: 'https://emallsoon.com/tools/shopify-profit-margin-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'How do I calculate profit margin on Shopify?',
+    a: 'Profit margin = (price − all costs) ÷ price. All costs include product cost, shipping you pay, payment processing (typically 2.9% + $0.30), your plan transaction fee if you do not use Shopify Payments, and any ad spend you attribute per order.',
+  },
+  {
+    q: 'Do I pay transaction fees if I use Shopify Payments?',
+    a: 'No. If you use Shopify Payments in a supported country, the additional transaction fee for your plan (2% on Basic, 1% on Shopify, 0.5% on Advanced) is waived — you only pay card processing rates. Using a third-party gateway like PayPal for all orders keeps the extra fee.',
+  },
+  {
+    q: 'What is a good profit margin for a Shopify store?',
+    a: 'Net margins vary widely by niche, but healthy Shopify stores typically target 20–40% gross margin after product cost and shipping, and 10–20% net after ads and fees. Paid acquisition eats margin fast — model ad cost per order before scaling spend.',
+  },
+  {
+    q: 'What is the difference between margin and markup?',
+    a: 'Margin is profit as a share of the selling price; markup is profit as a share of your cost. A $50 product sold for $100 has a 50% margin but a 100% markup. Shopify reports margin — most pricing rules of thumb reference markup.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Shopify Profit Margin Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Shopify · free · no signup</p>
+        <h1>Shopify Profit Margin Calculator</h1>
+        <p class="lede">
+          Product cost is only the beginning. This calculator adds payment
+          processing and your plan's transaction fee, so the margin you see is
+          the margin that actually reaches your bank account.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="shopify-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Order numbers</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="price">Selling price</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="price" value="45.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="cost">Product cost</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="cost" value="15.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="shipping">Shipping cost you pay</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="shipping" value="5.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Charge the customer? Add that revenue to price</span>
+              </div>
+              <div class="field">
+                <label for="ads">Ad spend per order</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="ads" value="6.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Total ad spend ÷ orders</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Your Shopify plan</p>
+            <div class="form-grid">
+              <div class="field span-2">
+                <label for="plan">Plan</label>
+                <div class="input-shell select-shell">
+                  <select id="plan">
+                    {shopifyPlans.map((p) => <option value={p.txnPct}>{p.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div class="span-2 switch-row">
+                <div>
+                  <span class="switch-label">Using Shopify Payments?</span>
+                  <span class="switch-sub">Waives the plan transaction fee</span>
+                </div>
+                <span class="switch">
+                  <input type="checkbox" id="sp" checked />
+                  <span class="track"><span class="thumb"></span></span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Processing rates (editable)</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="proc-pct">Card processing (%)</label>
+                <div class="input-shell">
+                  <input type="number" id="proc-pct" value={shopifyProcessingPct} min="0" max="100" step="0.1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="proc-flat">Fixed fee per order</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="proc-flat" value={shopifyProcessingFlat} min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">US online rate: 2.9% + $0.30</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">Order Profit Receipt</p>
+                <p class="rh-sub">per order · live</p>
+              </div>
+
+              <div class="rline"><span class="rl-label">Order price</span><span class="rl-dots"></span><span class="rl-val" id="r-price">$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Card processing</span><span class="rl-dots"></span><span class="rl-val" id="r-proc">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Transaction fee</span><span class="rl-dots"></span><span class="rl-val" id="r-txn">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Product cost</span><span class="rl-dots"></span><span class="rl-val" id="r-cost">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Shipping cost</span><span class="rl-dots"></span><span class="rl-val" id="r-ship">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Ad spend / order</span><span class="rl-dots"></span><span class="rl-val" id="r-ads">−$0.00</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Profit / order</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0.00</span>
+              </div>
+
+              <div class="rline rline--meta"><span class="rl-label">Profit margin</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Markup on cost</span><span class="rl-dots"></span><span class="rl-val" id="r-markup">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Break-even price</span><span class="rl-dots"></span><span class="rl-val" id="r-breakeven">$0.00</span></div>
+
+              <div class="verdict pos" id="r-verdict">healthy margin ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Processing rates vary by country and plan — edit to match your
+                region. Transaction fee applies only when not using Shopify
+                Payments.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>Where a Shopify order's money goes</h2>
+        <p>
+          A Shopify order loses money to fees in two separate places, and
+          confusing them is the most common pricing mistake. <strong>Payment
+          processing</strong> (card rates, ~2.9% + $0.30 in the US) is charged
+          on every transaction by your payment provider. The <strong>plan
+          transaction fee</strong> (2% / 1% / 0.5% depending on plan) is only
+          charged when you <em>don't</em> use Shopify Payments — for example
+          when PayPal or a regional gateway processes the order.
+        </p>
+
+        <h3>Profit per order</h3>
+        <div class="formula-box">
+          profit = price − processing − transaction_fee − product_cost − shipping − ad_spend
+        </div>
+
+        <h3>Break-even price</h3>
+        <p>
+          Both processing and transaction fees scale with price, so break-even
+          divides fixed costs by the fee-free share of each dollar:
+        </p>
+        <div class="formula-box">
+          break-even price = (product_cost + shipping + ad_spend + fixed_fee) ÷ (1 − (proc% + txn%) / 100)
+        </div>
+
+        <h3>Margin vs. markup</h3>
+        <p>
+          <strong>Margin</strong> divides profit by price — what share of
+          revenue you keep. <strong>Markup</strong> divides profit by cost — how
+          much you add on top of what you paid. A 50% margin equals a 100%
+          markup; knowing which one a rule-of-thumb refers to prevents quiet
+          pricing disasters.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>Shopify calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+  .select-shell select {
+    width: 100%;
+  }
+</style>
+
+<script>
+  function $(id: string) {
+    return document.getElementById(id) as HTMLInputElement;
+  }
+
+  const money = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  let lastProfit: number | null = null;
+
+  function recalc() {
+    const price = read('price');
+    const cost = read('cost');
+    const shipping = read('shipping');
+    const ads = read('ads');
+    const procPct = Math.min(read('proc-pct'), 100);
+    const procFlat = read('proc-flat');
+    const planTxnPct = parseFloat($('plan').value) || 0;
+    const sp = $('sp').checked;
+    const txnPct = sp ? 0 : planTxnPct;
+
+    const processing = price * (procPct / 100) + (price > 0 ? procFlat : 0);
+    const txn = price * (txnPct / 100);
+    const fixedCosts = cost + shipping + ads + (price > 0 ? procFlat : 0);
+    const variableFeePct = (procPct + txnPct) / 100;
+    const profit = price - processing - txn - cost - shipping - ads;
+    const margin = price > 0 ? (profit / price) * 100 : 0;
+    const costBasis = cost + shipping + ads + processing + txn;
+    const markup = costBasis > 0 ? (profit / costBasis) * 100 : 0;
+    const denom = 1 - variableFeePct;
+    const breakEven = denom > 0 && price > 0 ? fixedCosts / denom : 0;
+
+    $('r-price').textContent = money(price);
+    $('r-proc').textContent = `−${money(processing)}`;
+    $('r-txn').textContent = `−${money(txn)}`;
+    $('r-cost').textContent = `−${money(cost)}`;
+    $('r-ship').textContent = `−${money(shipping)}`;
+    $('r-ads').textContent = `−${money(ads)}`;
+
+    const profitEl = $('r-profit');
+    profitEl.textContent = (profit < 0 ? '−' : '') + money(Math.abs(profit));
+    profitEl.classList.toggle('pos', profit >= 0);
+    profitEl.classList.toggle('neg', profit < 0);
+
+    $('r-margin').textContent = pct(margin);
+    $('r-markup').textContent = pct(markup);
+    $('r-breakeven').textContent = price > 0 ? money(breakEven) : '—';
+
+    const verdict = $('r-verdict');
+    if (margin >= 25) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'healthy margin ✓';
+    } else if (margin >= 10) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'workable — watch ad spend';
+    } else if (profit >= 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'thin margin — price or cost needs work';
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'losing money on every order ✕';
+    }
+
+    if (lastProfit !== null && Math.abs(profit - lastProfit) > 0.001) {
+      profitEl.classList.remove('flash');
+      void profitEl.offsetWidth;
+      profitEl.classList.add('flash');
+    }
+    lastProfit = profit;
+  }
+
+  ['price', 'cost', 'shipping', 'ads', 'proc-pct', 'proc-flat', 'plan', 'sp'].forEach((id) =>
+    $(id).addEventListener('input', recalc)
+  );
+
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'Shopify order economics (emallsoon.com)',
+      `Order price:       ${$('r-price').textContent}`,
+      `Card processing:   ${$('r-proc').textContent}`,
+      `Transaction fee:   ${$('r-txn').textContent}`,
+      `Product cost:      ${$('r-cost').textContent}`,
+      `Shipping cost:     ${$('r-ship').textContent}`,
+      `Ad spend/order:    ${$('r-ads').textContent}`,
+      `Profit/order:      ${$('r-profit').textContent}`,
+      `Margin:            ${$('r-margin').textContent}`,
+      `Markup:            ${$('r-markup').textContent}`,
+      `Break-even price:  ${$('r-breakeven').textContent}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(lines);
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  recalc();
+</script>

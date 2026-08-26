@@ -1,0 +1,389 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+
+const tool = tools.find((t) => t.slug === 'roas-break-even-calculator')!;
+const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
+
+const title = 'ROAS & Break-Even Calculator for E-commerce Ads | emallsoon';
+const description =
+  'Free break-even ROAS calculator. Find the minimum ROAS your product can afford before scaling ad spend, and compare it with your actual campaign ROAS. No signup.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'ROAS & Break-Even Calculator',
+  url: 'https://emallsoon.com/tools/roas-break-even-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description:
+    'Free break-even ROAS calculator for e-commerce ads: contribution margin, break-even ROAS, and net ad profitability.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    { '@type': 'ListItem', position: 2, name: 'ROAS & Break-Even Calculator', item: 'https://emallsoon.com/tools/roas-break-even-calculator/' },
+  ],
+};
+
+const faqs = [
+  {
+    q: 'What is break-even ROAS?',
+    a: 'Break-even ROAS is the return on ad spend at which your advertising neither makes nor loses money. It equals 1 ÷ contribution margin. If you keep 25% of revenue after product cost, fees, and shipping, you need a ROAS of 4.0 just to break even — anything above that is real profit.',
+  },
+  {
+    q: 'How do I calculate contribution margin?',
+    a: 'Contribution margin per order = average order value − product cost − payment/platform fees − shipping − any other variable cost per order. Divide by the order value to get the percentage. Fixed costs (subscriptions, salaries) are excluded — that is what makes it "contribution".',
+  },
+  {
+    q: 'Is a ROAS of 2 good?',
+    a: 'It depends entirely on your margin. At a 60% contribution margin, a 2.0 ROAS is comfortably profitable. At a 20% margin, a 2.0 ROAS loses money on every order. Never judge ROAS without break-even ROAS next to it.',
+  },
+  {
+    q: 'Should I include returns and taxes?',
+    a: 'For a realistic model, yes — reduce revenue by your expected return rate or add an average returns cost per order. The calculator has an "other variable costs" field you can use for returns, taxes, and packaging.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={tool.href}
+  jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}
+>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>ROAS &amp; Break-Even Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Paid ads · free · no signup</p>
+        <h1>ROAS &amp; Break-Even Calculator</h1>
+        <p class="lede">
+          "Is a 3x ROAS good?" depends on one number: your contribution margin.
+          Find your break-even ROAS, compare it with what your campaigns
+          actually return, and know instantly whether ads print money or burn
+          it.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="roas-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Campaign numbers</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="spend">Ad spend</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="spend" value="500" min="0" step="1" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="revenue">Revenue from ads</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="revenue" value="1250" min="0" step="1" inputmode="decimal" />
+                </div>
+                <span class="hint">Attributed revenue over same period</span>
+              </div>
+              <div class="field">
+                <label for="aov">Average order value</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="aov" value="42.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Unit economics</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="cogs-pct">Product cost (% of AOV)</label>
+                <div class="input-shell">
+                  <input type="number" id="cogs-pct" value="40" min="0" max="100" step="1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="other">Other variable cost / order</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="other" value="8.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Fees, shipping, returns, packaging…</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Scale check (optional)</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="target">Monthly revenue target</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="target" value="10000" min="0" step="100" inputmode="decimal" />
+                </div>
+                <span class="hint">Finds the ad budget you can afford</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head">
+                <p class="rh-title">Ad Profit Receipt</p>
+                <p class="rh-sub">whole campaign · live</p>
+              </div>
+
+              <div class="rline"><span class="rl-label">Revenue</span><span class="rl-dots"></span><span class="rl-val" id="r-revenue">$0</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Product cost</span><span class="rl-dots"></span><span class="rl-val" id="r-cogs">−$0</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Variable costs</span><span class="rl-dots"></span><span class="rl-val" id="r-var">−$0</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Ad spend</span><span class="rl-dots"></span><span class="rl-val" id="r-spend">−$0</span></div>
+
+              <div class="rline rline--total">
+                <span class="rl-label">Net profit</span>
+                <span class="rl-dots"></span>
+                <span class="rl-val num" id="r-profit" aria-live="polite">$0</span>
+              </div>
+
+              <div class="rline rline--meta"><span class="rl-label">Actual ROAS</span><span class="rl-dots"></span><span class="rl-val" id="r-roas">0.0</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Contribution margin</span><span class="rl-dots"></span><span class="rl-val" id="r-cm">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Break-even ROAS</span><span class="rl-dots"></span><span class="rl-val" id="r-beroas">—</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Budget for target</span><span class="rl-dots"></span><span class="rl-val" id="r-budget">$0</span></div>
+
+              <div class="verdict pos" id="r-verdict">ads are profitable ✓</div>
+
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+
+              <p class="disclaimer">
+                Uses your actual ROAS as the scaling assumption — a common
+                simplification. Real ROAS usually drops as spend rises, so
+                leave headroom.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">How the math works</p>
+        <h2>Break-even ROAS: the only ad metric that matters</h2>
+        <p>
+          ROAS on its own is vanity. A 4x ROAS sounds great until you learn the
+          product keeps only 20% of revenue after costs — at 20% margin, 4x is
+          precisely break-even, and every dollar of "scale" is a dollar of
+          risk. The metric that pairs with ROAS is <strong>break-even
+          ROAS</strong>: the return your unit economics demands before ads
+          create any profit at all.
+        </p>
+
+        <h3>Contribution margin</h3>
+        <div class="formula-box">
+          CM% = (AOV − product_cost − other_variable_costs) ÷ AOV
+        </div>
+
+        <h3>Break-even ROAS</h3>
+        <div class="formula-box">
+          break-even ROAS = 1 ÷ CM%
+        </div>
+        <p>
+          Keep 50% of revenue → break-even at 2.0. Keep 25% → 4.0. Keep 10% →
+          10.0. The thinner your margin, the more brutal the ROAS your ads must
+          clear — which is why margin-rich offers scale and margin-poor offers
+          suffocate, regardless of how good the ad creative is.
+        </p>
+
+        <h3>Net ad profit</h3>
+        <div class="formula-box">
+          net profit = revenue × CM% − ad spend
+        </div>
+        <p>
+          Note what is <em>not</em> in that formula: fixed costs. Ads are judged
+          on contribution — whether they add more than they consume. Payroll,
+          rent, and subscriptions come out of contribution across all channels.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Questions</p>
+          <h2>ROAS calculator FAQ</h2>
+        </div>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">
+                <p>{f.a}</p>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Keep calculating</p>
+          <h2>Other free tools</h2>
+        </div>
+      </div>
+      <div class="tool-grid">
+        {related.map((t, i) => <ToolCard tool={t} delayClass={`rise-${Math.min(i + 1, 4)}`} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 720px;
+    margin-bottom: 40px;
+    display: grid;
+    gap: 14px;
+  }
+</style>
+
+<script>
+  function $(id: string) {
+    return document.getElementById(id) as HTMLInputElement;
+  }
+
+  const money0 = (n: number) =>
+    n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+
+  function read(id: string): number {
+    const v = parseFloat($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  let lastProfit: number | null = null;
+
+  function recalc() {
+    const spend = read('spend');
+    const revenue = read('revenue');
+    const aov = read('aov');
+    const cogsPct = Math.min(read('cogs-pct'), 100);
+    const other = read('other');
+    const target = read('target');
+
+    const cmPerOrder = aov - aov * (cogsPct / 100) - other;
+    const cmPct = aov > 0 ? cmPerOrder / aov : 0;
+    const roas = spend > 0 ? revenue / spend : 0;
+    const breakEvenRoas = cmPct > 0 ? 1 / cmPct : 0;
+
+    const orders = aov > 0 ? revenue / aov : 0;
+    const cogsTotal = revenue * (cogsPct / 100);
+    const varTotal = orders * other;
+    const netProfit = revenue - cogsTotal - varTotal - spend;
+
+    // budget that can be spent on `target` revenue at current ROAS
+    const budget = roas > 0 ? target / roas : 0;
+
+    $('r-revenue').textContent = money0(revenue);
+    $('r-cogs').textContent = `−${money0(cogsTotal)}`;
+    $('r-var').textContent = `−${money0(varTotal)}`;
+    $('r-spend').textContent = `−${money0(spend)}`;
+
+    const profitEl = $('r-profit');
+    profitEl.textContent = (netProfit < 0 ? '−' : '') + money0(Math.abs(netProfit));
+    profitEl.classList.toggle('pos', netProfit >= 0);
+    profitEl.classList.toggle('neg', netProfit < 0);
+
+    $('r-roas').textContent = roas.toFixed(2);
+    $('r-cm').textContent = pct(cmPct * 100);
+    $('r-beroas').textContent = breakEvenRoas > 0 ? breakEvenRoas.toFixed(2) : '—';
+    $('r-budget').textContent = money0(budget);
+
+    const verdict = $('r-verdict');
+    if (spend === 0 || revenue === 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'enter spend and revenue first';
+    } else if (breakEvenRoas > 0 && roas >= breakEvenRoas * 1.25) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = `ads are profitable — ${roas.toFixed(2)} vs ${breakEvenRoas.toFixed(2)} break-even ✓`;
+    } else if (breakEvenRoas > 0 && roas >= breakEvenRoas) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = `profitable, but barely — ${roas.toFixed(2)} vs ${breakEvenRoas.toFixed(2)}`;
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = `below break-even — need ${breakEvenRoas > 0 ? breakEvenRoas.toFixed(2) : '—'} to stop losing ✕`;
+    }
+
+    if (lastProfit !== null && Math.abs(netProfit - lastProfit) > 0.5) {
+      profitEl.classList.remove('flash');
+      void profitEl.offsetWidth;
+      profitEl.classList.add('flash');
+    }
+    lastProfit = netProfit;
+  }
+
+  ['spend', 'revenue', 'aov', 'cogs-pct', 'other', 'target'].forEach((id) =>
+    $(id).addEventListener('input', recalc)
+  );
+
+  const copyBtn = document.getElementById('copy-btn')!;
+  copyBtn.addEventListener('click', async () => {
+    const lines = [
+      'Ad economics (emallsoon.com)',
+      `Revenue:            ${$('r-revenue').textContent}`,
+      `Product cost:       ${$('r-cogs').textContent}`,
+      `Variable costs:     ${$('r-var').textContent}`,
+      `Ad spend:           ${$('r-spend').textContent}`,
+      `Net profit:         ${$('r-profit').textContent}`,
+      `Actual ROAS:        ${$('r-roas').textContent}`,
+      `Contribution margin:${$('r-cm').textContent}`,
+      `Break-even ROAS:    ${$('r-beroas').textContent}`,
+      `Budget for target:  ${$('r-budget').textContent}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(lines);
+      copyBtn.textContent = 'Copied ✓';
+    } catch {
+      copyBtn.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyBtn.textContent = 'Copy results'), 1800);
+  });
+
+  recalc();
+</script>
