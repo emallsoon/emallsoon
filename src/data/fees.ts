@@ -7,13 +7,13 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-08-26
+ * Last verified against official sources: 2026-08-27
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
  *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17)
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
- *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-26)
- *  - eBay: eBay Seller Center "Understanding selling fees" (verified 2026-08-26)
+ *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-27)
+ *  - eBay: eBay Seller Center "Understanding selling fees" (verified 2026-08-27)
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
