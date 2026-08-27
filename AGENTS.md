@@ -106,7 +106,7 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 
 | 资产 | 位置/获取方式 | 恢复操作 |
 |------|--------------|---------|
-| SSH 密钥对 | `~/.ssh/id_ed25519`（私钥，勿入库） | 重新 `ssh-keygen -t ed25519`，请用户把新公钥加到 GitHub。当前公钥指纹：`SHA256:6EsL1TgDV40XvPxl+7ZNjCnf+jPgpH/KbKzkdcj3wzs` |
+| SSH 密钥对 | `~/.ssh/id_ed25519`（私钥，勿入库）；持久备份在 `/workspace/.ssh-backup/` | 首选 `bash /workspace/restore-ssh.sh` 一键恢复；备份丢失才重新 `ssh-keygen -t ed25519` 并请用户加新公钥。当前指纹：`SHA256:HOxh1VfsU59f3R9U2I+hZ+plsWrgjVeiIkCAGpHCI8E` |
 | SSH 代理隧道配置 | `~/.ssh/config` 的 `github-proxy` 别名 | 见下方"环境注意事项"，ProxyCommand 走 `nc -X connect -x 127.0.0.1:18080` 连 ssh.github.com:443 |
 | Cloudflare Pages 项目 | dash.cloudflare.com → Workers & Pages | 用户账号内已配置：构建命令 `npm run build`，输出目录 `dist`，连 `emallsoon/emallsoon` 仓库 main 分支，自定义域名 emallsoon.com + www 301 |
 | Cloudflare Web Analytics | Cloudflare 面板已开启 | 边缘自动注入，无需代码 |
@@ -123,8 +123,10 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 - **网络出口**：SSH 22 端口直连被禁，必须走 HTTP 代理 `127.0.0.1:18080`。
   `~/.ssh/config` 已配置 `github-proxy` 别名（ProxyCommand 用 nc -X connect 走代理连 ssh.github.com:443）。
   git remote 已使用 `git@github-proxy:...` 格式。
-- **密钥易失**：沙箱重置后 `~/.ssh/` 会丢失。若 push 报 `Permission denied (publickey)`，
-  需重新 `ssh-keygen -t ed25519` 并请用户把新公钥加到 GitHub（Settings → SSH keys）。
+- **密钥易失 + 已有解法**：沙箱会话重置后 `~/.ssh/` 会丢失。**持久化备份在 `/workspace/.ssh-backup/`**，
+  恢复只需执行 `bash /workspace/restore-ssh.sh`（脚本会自动还原密钥+代理配置并测试认证）。
+  仅当备份本身丢失（如全新环境）才需重新生成密钥并请用户把新公钥加到 GitHub。
+  当前公钥指纹：`SHA256:HOxh1VfsU59f3R9U2I+hZ+plsWrgjVeiIkCAGpHCI8E`
 - **依赖易失**：沙箱重置后 `node_modules/` 会丢失，构建前先 `npm install`。
 - **构建命令**：`cd /workspace/emallsoon && npm install && npm run build`
 
