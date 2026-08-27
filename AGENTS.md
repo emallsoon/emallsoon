@@ -2,6 +2,26 @@
 
 本文档供后续接手本项目的智能体（AI agent）快速了解项目状态、架构与工作流程。人类开发者请阅读 `README.md`。
 
+## 🚀 新会话快速开始（30 秒）
+
+**环境重置后第一件事，执行这一条命令即可恢复全部工作能力：**
+
+```bash
+bash /workspace/emallsoon/scripts/bootstrap.sh
+```
+
+该脚本自动完成：SSH 密钥恢复（从 `/workspace/.ssh-backup/`）→ GitHub 认证测试 →
+仓库状态检查 → 依赖安装 → 构建验证 → 远程同步对比。若提示认证失败，
+说明公钥被移除，按脚本输出的公钥请用户重新添加到 GitHub。
+
+**环境重置规律（实测）**：
+- ✅ 存活：git 跟踪的文件、`/workspace/.ssh-backup/`（密钥持久备份）
+- ❌ 被清：`~/.ssh/`（家目录）、`node_modules/`、`dist/`、`.astro/`（gitignore 项）
+- 仓库若整个丢失：`git clone https://github.com/emallsoon/emallsoon.git /workspace/emallsoon`（公开仓库）
+
+**常用命令**：`scripts/backup-ssh.sh` 刷新密钥备份（认证成功后跑一次）｜
+`npm run build` 构建（12 页）｜`git push origin main` 部署上线｜`git push agent main` 同步镜像仓库
+
 ## 项目概述
 
 **emallsoon.com** — 面向电商卖主的免费计算器工具站，零后端、零数据库，纯静态部署在 Cloudflare Pages（免费层）。商业模式：SEO 自然流量 → 广告变现（流量过万后接入 Ezoic）。
@@ -62,6 +82,9 @@ src/
 └── pages/tools/*.astro        # 各计算器页（含内联计算脚本）
 
 docs/screenshots/              # 网站首页视觉基准截图（按日期命名，重构设计时对照）
+scripts/bootstrap.sh           # ★ 新会话环境一键恢复（SSH+依赖+构建+远程对比）
+scripts/backup-ssh.sh          # 刷新密钥备份到 /workspace/.ssh-backup/
+reports/                       # 每日费率核查报告存档
 ```
 
 ### 新增计算器的固定流程
@@ -106,7 +129,7 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 
 | 资产 | 位置/获取方式 | 恢复操作 |
 |------|--------------|---------|
-| SSH 密钥对 | `~/.ssh/id_ed25519`（私钥，勿入库）；持久备份在 `/workspace/.ssh-backup/` | 首选 `bash /workspace/restore-ssh.sh` 一键恢复；备份丢失才重新 `ssh-keygen -t ed25519` 并请用户加新公钥。当前指纹：`SHA256:HOxh1VfsU59f3R9U2I+hZ+plsWrgjVeiIkCAGpHCI8E` |
+| SSH 密钥对 | `~/.ssh/id_ed25519`（私钥，勿入库）；持久备份在 `/workspace/.ssh-backup/` | 首选 `bash /workspace/emallsoon/scripts/bootstrap.sh` 一键恢复；备份丢失才重新 `ssh-keygen -t ed25519` 并请用户加新公钥。当前指纹：`SHA256:HOxh1VfsU59f3R9U2I+hZ+plsWrgjVeiIkCAGpHCI8E` |
 | SSH 代理隧道配置 | `~/.ssh/config` 的 `github-proxy` 别名 | 见下方"环境注意事项"，ProxyCommand 走 `nc -X connect -x 127.0.0.1:18080` 连 ssh.github.com:443 |
 | Cloudflare Pages 项目 | dash.cloudflare.com → Workers & Pages | 用户账号内已配置：构建命令 `npm run build`，输出目录 `dist`，连 `emallsoon/emallsoon` 仓库 main 分支，自定义域名 emallsoon.com + www 301 |
 | Cloudflare Web Analytics | Cloudflare 面板已开启 | 边缘自动注入，无需代码 |
@@ -124,7 +147,7 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
   `~/.ssh/config` 已配置 `github-proxy` 别名（ProxyCommand 用 nc -X connect 走代理连 ssh.github.com:443）。
   git remote 已使用 `git@github-proxy:...` 格式。
 - **密钥易失 + 已有解法**：沙箱会话重置后 `~/.ssh/` 会丢失。**持久化备份在 `/workspace/.ssh-backup/`**，
-  恢复只需执行 `bash /workspace/restore-ssh.sh`（脚本会自动还原密钥+代理配置并测试认证）。
+  恢复只需执行 `bash /workspace/emallsoon/scripts/bootstrap.sh`（自动还原密钥+代理配置+依赖并测试认证与构建）。
   仅当备份本身丢失（如全新环境）才需重新生成密钥并请用户把新公钥加到 GitHub。
   当前公钥指纹：`SHA256:HOxh1VfsU59f3R9U2I+hZ+plsWrgjVeiIkCAGpHCI8E`
 - **依赖易失**：沙箱重置后 `node_modules/` 会丢失，构建前先 `npm install`。
