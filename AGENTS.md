@@ -60,6 +60,8 @@ src/
 ├── components/ToolCard.astro  # 工具卡片（含 SVG 图标映射，新增工具需加图标）
 ├── layouts/BaseLayout.astro   # SEO 骨架 + 结构化数据
 └── pages/tools/*.astro        # 各计算器页（含内联计算脚本）
+
+docs/screenshots/              # 网站首页视觉基准截图（按日期命名，重构设计时对照）
 ```
 
 ### 新增计算器的固定流程
@@ -92,6 +94,29 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 - 运行时间：每天 09:00（Asia/Shanghai）
 - 内容：联网核查 5 个平台费率 → 与 `fees.ts` 对比 → 有差异则更新+构建+push 部署 → 报告写入 `reports/YYYY-MM-DD-fee-check.md`
 - 接手后如需管理此任务，使用 Schedule 工具（action: list/get/pause/resume/delete/update）
+- ⚠️ **已知限制**：该任务在独立会话/沙箱中执行，其文件系统与交互会话可能不共享。
+  截至 2026-08-27 已执行 2 次但交互工作区未见 `reports/` 目录生成。若发现同样情况，
+  用 Schedule action:get 查看执行状态，勿假定任务失败——报告可能写入了任务自己的沙箱。
+- **任务重建**：若任务丢失，用 Schedule 工具按上述参数重建（cron: `0 9 * * *`，时区 Asia/Shanghai），
+  prompt 要点：核查 5 平台费率→对比 fees.ts→更新+build+push→报告落盘→严禁无来源改数字。
+
+## 完整恢复指南（灾备资产清单）
+
+代码全部在 git 中，但以下资产**不在 git 里**，恢复时需单独处理：
+
+| 资产 | 位置/获取方式 | 恢复操作 |
+|------|--------------|---------|
+| SSH 密钥对 | `~/.ssh/id_ed25519`（私钥，勿入库） | 重新 `ssh-keygen -t ed25519`，请用户把新公钥加到 GitHub。当前公钥指纹：`SHA256:6EsL1TgDV40XvPxl+7ZNjCnf+jPgpH/KbKzkdcj3wzs` |
+| SSH 代理隧道配置 | `~/.ssh/config` 的 `github-proxy` 别名 | 见下方"环境注意事项"，ProxyCommand 走 `nc -X connect -x 127.0.0.1:18080` 连 ssh.github.com:443 |
+| Cloudflare Pages 项目 | dash.cloudflare.com → Workers & Pages | 用户账号内已配置：构建命令 `npm run build`，输出目录 `dist`，连 `emallsoon/emallsoon` 仓库 main 分支，自定义域名 emallsoon.com + www 301 |
+| Cloudflare Web Analytics | Cloudflare 面板已开启 | 边缘自动注入，无需代码 |
+| Cloudflare API token | 用户持有（历史 token 已由用户撤销轮换过） | 需要 API 操作时请用户提供新 token，勿复用旧值 |
+| GitHub 仓库权限 | `emallsoon` 账号 | 生产仓库 `emallsoon/emallsoon`（连部署）+ 镜像 `emallsoon/emallsoon-agent` |
+| 每日核查定时任务 | 平台级 schedule（ID `79ZQUNK_X.UX.1`） | 见上节"任务重建" |
+| Search Console / Bing | 用户账号已提交 sitemap | 无需恢复操作 |
+| node_modules / dist / .astro | 本地可再生成 | `npm install && npm run build` |
+
+**git 仓库内容（恢复即得）**：全部源码、README、AGENTS.md、`docs/screenshots/` 视觉基准。
 
 ## 环境注意事项（沙箱特定）
 
