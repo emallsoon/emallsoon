@@ -100,7 +100,8 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
   git remote 已使用 `git@github-proxy:...` 格式。
 - **密钥易失**：沙箱重置后 `~/.ssh/` 会丢失。若 push 报 `Permission denied (publickey)`，
   需重新 `ssh-keygen -t ed25519` 并请用户把新公钥加到 GitHub（Settings → SSH keys）。
-- **构建命令**：`cd /workspace/emallsoon && npm run build`（node_modules 已就绪）
+- **依赖易失**：沙箱重置后 `node_modules/` 会丢失，构建前先 `npm install`。
+- **构建命令**：`cd /workspace/emallsoon && npm install && npm run build`
 
 ## 待办与路线图（按优先级）
 
