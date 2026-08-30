@@ -67,7 +67,12 @@ fi
 
 # ---------- 3. 安装 /opt/google/chrome 包装器 ----------
 # MCP 只认 /opt/google/chrome/chrome 这个路径；包装脚本自动附加
-# root/无显示器环境必需的启动参数。
+# root/无显示器环境必需的启动参数 + 沙箱出口代理。
+# 代理说明（2026-08-30 实测）：沙箱直连仅 Cloudflare 等少数域可达，
+# Google/Bing 等外部域必须走 127.0.0.1:18080；本地回环绕过代理
+# 保证 dev server 直连。注意：search.google.com / accounts.google.com /
+# www.google.com 被出口策略封锁（TLS 握手被切断），GSC 无法从沙箱访问；
+# googleapis/gstatic 静态资源域可通。Bing Webmaster 走代理正常。
 mkdir -p /opt/google/chrome
 cat > /opt/google/chrome/chrome << WRAPPER
 #!/bin/bash
@@ -77,12 +82,15 @@ cat > /opt/google/chrome/chrome << WRAPPER
 #   --disable-gpu           沙箱无 GPU
 #   --disable-dev-shm-usage /dev/shm 过小，改用 /tmp
 #   --headless=new          沙箱无 X 显示器
+#   --proxy-server          沙箱出口代理（访问外部域必需）
+#   --proxy-bypass-list     本地回环不走代理（本地 dev server 直连）
 # 调用方（puppeteer/MCP）追加的参数原样透传（\$@）。
 REAL="$CHROME_REAL"
-exec "\$REAL" --no-sandbox --disable-gpu --disable-dev-shm-usage --headless=new "\$@"
+exec "\$REAL" --no-sandbox --disable-gpu --disable-dev-shm-usage --headless=new \\
+  --proxy-server=http://127.0.0.1:18080 --proxy-bypass-list="<-loopback>" "\$@"
 WRAPPER
 chmod +x /opt/google/chrome/chrome
-ok "包装器已安装: /opt/google/chrome/chrome"
+ok "包装器已安装: /opt/google/chrome/chrome（含出口代理）"
 
 # ---------- 4. 浏览器配置文件持久化 ----------
 if pgrep -f "chrome.*user-data-dir" >/dev/null 2>&1; then
