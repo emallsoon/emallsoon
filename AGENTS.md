@@ -160,13 +160,15 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 
 ### 网络出口与封锁档案（2026-08-30 深度排查定论）
 
-**沙箱出口位于中国大陆（天津电信，出口 IP 180.184.33.18），受 GFW 封锁。**
+**沙箱直连出口位于中国大陆（天津电信，出口 IP 180.184.33.18），受 GFW 封锁。
+当日已用海外 VPS SSH 隧道解决 Google 访问（见下方"SSH 隧道"节）。**
 
-| 域名/IP | 状态 | 机制 |
-|---------|------|------|
-| Google 全系（search/accounts/www/youtube/googleapis/gstatic） | ❌ 不可达 | DNS 污染（假 IP `2001::1` 或国内 IP）+ Google IP 段 TCP 丢弃 |
-| Facebook / Twitter | ❌ 不可达 | 同上（DNS 全部污染到 `2001::1`） |
+| 域名/IP | 直连状态 | 机制 |
+|---------|---------|------|
+| Google 全系（search/accounts/www/youtube/googleapis/gstatic） | ❌ 被墙 | DNS 污染（假 IP `2001::1` 或国内 IP）+ Google IP 段 TCP 丢弃 |
+| Facebook / Twitter | ❌ 被墙 | 同上（DNS 全部污染到 `2001::1`） |
 | 外部 UDP 53（如 8.8.8.8）| ❌ 超时 | 出口防火墙 |
+| SSH 22 端口直连 | ❌ 被墙 | 须经 HTTP 代理 CONNECT 中转（`nc -X connect -x 127.0.0.1:18080`） |
 | Bing / Microsoft 登录（login.live.com 等） | ✅ 走代理正常 | 未被墙 |
 | GitHub / Cloudflare / 阿里 DoH（dns.alidns.com） | ✅ 正常 | 未被墙 |
 
@@ -175,9 +177,33 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
    `unexpected eof`——**不要误判为 SNI 过滤**（已用"换 SNI 不换 IP"和"无 SNI 连 IP"双实验排除）
 2. 连 CDN IP 测不同 SNI 时，服务器端 SNI 路由会关闭不认识的域名（Bing IP + google SNI
    必然失败），这是正常 CDN 行为，不是出口封锁证据
-3. 结论：**GSC（Google Search Console）无法从沙箱访问**，Search Console API
-   （googleapis.com）同样被墙。SEO 数据里 Bing Webmaster 可在沙箱浏览器直接操作；
-   GSC 数据需用户本机查看后转述
+
+### SSH 隧道：Google/GSC 访问方案（2026-08-30 上线）
+
+用户提供海外 VPS（`coder@64.188.28.227`，凭据存 `/workspace/.tunnel/start-tunnel.sh`，
+**该目录在持久区但不在 git 仓库内，严禁提交**）。架构：
+
+```
+Chrome --(HTTP 代理 18082)--> privoxy 域名分流
+  ├─ Google 全系（含 google.com.hk 等 ccTLD）→ SOCKS5 127.0.0.1:1080
+  │    └─ SSH -D 动态转发（经 18080 HTTP 代理 CONNECT 中转，22 直连被墙）
+  │         └─ 海外 VPS 出口（Google 地理定位为中华区，google.com 会 302 到 .com.hk）
+  ├─ 本地回环 → 直连（dev server）
+  └─ 其余外域 → 沙箱代理 18080（Bing/GitHub/emallsoon 原路径）
+```
+
+要点与踩坑（实测）：
+- **privoxy 规则"最后匹配生效"**：默认规则（`forward / 18080`）必须放最前，
+  Google 规则放最后；顺序反了会让所有流量走默认路由（表现为 Google 依旧被墙）
+- **`socks5h` 是 curl 参数名**，privoxy 用 `forward-socks5t`（t = 远端 DNS，避免本地
+  污染）；`forward-socks5` 是本地解析，勿用
+- **Chrome 忽略 file:// PAC**：MCP 启动的实例带 `--proxy-pac-url` 仍对所有域名报
+  `ERR_NAME_NOT_RESOLVED`（对照实验：CLI 同参数正常），所以必须在代理层分流
+- 隧道断线自动重连（`start-tunnel.sh` 内置 while 循环）；仅影响 Google，
+  Bing/emallsoon 验证不受影响
+- `setup-browser.sh` 已集成：重装 privoxy/sshpass → 恢复配置 → 启动隧道
+- **GSC 现在可从沙箱浏览器直接操作**（已实测加载成功）；
+  Search Console API（googleapis.com）走隧道也可达
 
 
 ## 真实浏览器（Chrome DevTools MCP）
