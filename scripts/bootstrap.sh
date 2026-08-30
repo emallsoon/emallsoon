@@ -12,7 +12,7 @@ set -uo pipefail
 
 REPO="/workspace/emallsoon"
 BACKUP="/workspace/.ssh-backup"
-TOTAL=6
+TOTAL=7
 PASS=0; WARN=0
 
 ok()   { echo "  ✅ $1"; PASS=$((PASS+1)); }
@@ -97,7 +97,21 @@ timeout 30 git fetch origin 2>/dev/null && \
   ok "origin 同步: $(git rev-list --count origin/main..main 2>/dev/null || echo '?') 个本地未推送" || \
   warn "fetch 失败（认证或网络）"
 
+# ---------- 7. 真实浏览器恢复（Chrome DevTools MCP） ----------
+echo "[7/$TOTAL] 真实浏览器（chrome-devtools-mcp）"
+if [ -x /opt/google/chrome/chrome ] && /opt/google/chrome/chrome --version >/dev/null 2>&1; then
+  ok "浏览器就绪: $(/opt/google/chrome/chrome --version 2>/dev/null)"
+else
+  if bash "$REPO/scripts/setup-browser.sh" >/dev/null 2>&1; then
+    ok "已通过 setup-browser.sh 恢复浏览器"
+  else
+    warn "浏览器恢复失败（不影响构建/部署，仅影响真实浏览器验证）"
+    echo "     → 手动排查: bash $REPO/scripts/setup-browser.sh"
+  fi
+fi
+
 echo "=========================================="
 echo " 完成：$PASS 项通过"
 echo " 下一步：bash $REPO/scripts/backup-ssh.sh 可刷新密钥备份"
+echo "        bash $REPO/scripts/browser-shot.sh <url> <png> 网页截图"
 echo "=========================================="

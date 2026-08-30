@@ -11,12 +11,15 @@ bash /workspace/emallsoon/scripts/bootstrap.sh
 ```
 
 该脚本自动完成：SSH 密钥恢复（从 `/workspace/.ssh-backup/`）→ GitHub 认证测试 →
-仓库状态检查 → 依赖安装 → 构建验证 → 远程同步对比。若提示认证失败，
-说明公钥被移除，按脚本输出的公钥请用户重新添加到 GitHub。
+仓库状态检查 → 依赖安装 → 构建验证 → 远程同步对比 → **真实浏览器恢复**（第 7 步）。
+若提示认证失败，说明公钥被移除，按脚本输出的公钥请用户重新添加到 GitHub。
 
 **环境重置规律（实测）**：
-- ✅ 存活：git 跟踪的文件、`/workspace/.ssh-backup/`（密钥持久备份）
-- ❌ 被清：`~/.ssh/`（家目录）、`node_modules/`、`dist/`、`.astro/`（gitignore 项）
+- ✅ 存活：git 跟踪的文件、`/workspace/.ssh-backup/`（密钥持久备份）、
+  `/workspace/.browser-profile/`（浏览器登录态持久化）、
+  `~/.cache/puppeteer/`（镜像内置 Chrome 二进制）
+- ❌ 被清：`~/.ssh/`（家目录）、`node_modules/`、`dist/`、`.astro/`（gitignore 项）、
+  apt 系统库与 `/opt/google/chrome`（系统层，bootstrap 第 7 步自动重建）
 - 仓库若整个丢失：`git clone https://github.com/emallsoon/emallsoon.git /workspace/emallsoon`（公开仓库）
 
 **常用命令**：`scripts/backup-ssh.sh` 刷新密钥备份（认证成功后跑一次）｜
@@ -138,6 +141,8 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 | 每日核查定时任务 | 平台级 schedule（ID `79ZQUNK_X.UX.1`） | 见上节"任务重建" |
 | Search Console / Bing | 用户账号已提交 sitemap | 无需恢复操作 |
 | node_modules / dist / .astro | 本地可再生成 | `npm install && npm run build` |
+| 真实浏览器环境 | apt 库 + `/opt/google/chrome` 包装器（系统层，重置即失） | `bash scripts/setup-browser.sh`（bootstrap 第 7 步自动执行） |
+| 浏览器登录态/cookies | `/workspace/.browser-profile/`（持久，重置存活） | setup-browser.sh 自动符号链接回去，无需操作 |
 
 **git 仓库内容（恢复即得）**：全部源码、README、AGENTS.md、`docs/screenshots/` 视觉基准。
 
@@ -152,6 +157,45 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
   当前公钥指纹：`SHA256:HOxh1VfsU59f3R9U2I+hZ+plsWrgjVeiIkCAGpHCI8E`
 - **依赖易失**：沙箱重置后 `node_modules/` 会丢失，构建前先 `npm install`。
 - **构建命令**：`cd /workspace/emallsoon && npm install && npm run build`
+
+## 真实浏览器（Chrome DevTools MCP）
+
+**2026-08-30 已修复并纳入自愈体系**。此前 MCP 报 `Could not find Google Chrome executable
+at /opt/google/chrome/chrome`，根因与解法如下：
+
+### 根因（三层问题）
+
+1. **路径缺失**：chrome-devtools-mcp（插件以 `npx chrome-devtools-mcp@latest` 启动）在 Linux
+   上只找 `/opt/google/chrome/chrome`。沙箱没装系统 Chrome，但基础镜像自带完整
+   Chrome for Testing 二进制（`~/.cache/puppeteer/chrome/linux-*/chrome-linux64/chrome`，
+   151.x，651MB，**镜像内置，重置后存活**）——只是位置对不上。
+2. **缺系统库**：该二进制缺 5 个 X11 库（libatk1.0 / libatk-bridge2.0 / libxcomposite1 /
+   libxdamage1 / libatspi2.0），apt 装在系统层，**重置即失**。
+3. **root + 无显示器**：沙箱以 root 运行且无 X 显示器，Chrome 必须加
+   `--no-sandbox --disable-gpu --disable-dev-shm-usage --headless=new` 才能启动，
+   否则启动即崩（`Target closed`）。
+
+### 解法（`scripts/setup-browser.sh`，幂等可重跑）
+
+1. 定位镜像内置 Chrome 二进制 → 缺库则走代理 apt 安装 5 个库
+2. 在 `/opt/google/chrome/chrome` 放**包装脚本**（非符号链接）：自动附加沙箱必需参数后
+   `exec` 真实二进制，调用方参数原样透传——MCP/puppeteer 无感知
+3. **浏览器 profile 持久化**：MCP 的 profile 默认在 `~/.cache/chrome-devtools-mcp/chrome-profile`
+   （重置即失）。脚本将其符号链接到 `/workspace/.browser-profile/`（持久），
+   **重置后 cookies/登录态/会话标签全部保留**（已实测：重启浏览器后原标签页自动恢复）
+4. `bootstrap.sh` 第 7 步已集成：重置后跑一次 bootstrap，浏览器自动恢复
+
+### 使用要点
+
+- **MCP 工具截图**：`take_screenshot` 的 `filePath` 在本环境**不可用**（该 MCP 未配置任何
+  可写工作区根目录，一律 Access denied）；不传 `filePath` 的内联截图正常
+- **落盘截图**：`bash scripts/browser-shot.sh <url> <out.png> [宽x高]`——用 Chrome 原生
+  `--screenshot` + `--virtual-time-budget=8000`（等入场动画播完，避免截到半透明卡片），
+  零 npm 依赖，输出可直接进 `docs/screenshots/`
+- **浏览器进程死了不用慌**：MCP 会自动重启 Chrome（实测 kill 后下一次工具调用即恢复），
+  只是 pageId 会变，按提示重新 `list_pages` 即可
+- **验证记录**：2026-08-30 用真实浏览器全站验证——首页/Shopify/Etsy 计算器渲染正常、
+  控制台零错误、Shopify Advanced 0.6% 费率已上线、Etsy 数学逐项核对无误
 
 ## 待办与路线图（按优先级）
 
