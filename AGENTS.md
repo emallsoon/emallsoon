@@ -161,7 +161,7 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 ### 网络出口与封锁档案（2026-08-30 深度排查定论）
 
 **沙箱直连出口位于中国大陆（天津电信，出口 IP 180.184.33.18），受 GFW 封锁。
-当日已用海外 VPS SSH 隧道解决 Google 访问（见下方"SSH 隧道"节）。**
+曾用海外 VPS SSH 隧道恢复过 Google 访问，2026-08-30 用户决定弃用（见下方"SSH 隧道方案（已弃用）"节）。**
 
 | 域名/IP | 直连状态 | 机制 |
 |---------|---------|------|
@@ -178,32 +178,19 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 2. 连 CDN IP 测不同 SNI 时，服务器端 SNI 路由会关闭不认识的域名（Bing IP + google SNI
    必然失败），这是正常 CDN 行为，不是出口封锁证据
 
-### SSH 隧道：Google/GSC 访问方案（2026-08-30 上线）
+### SSH 隧道方案（2026-08-30 已弃用）
 
-用户提供海外 VPS（`coder@64.188.28.227`，凭据存 `/workspace/.tunnel/start-tunnel.sh`，
-**该目录在持久区但不在 git 仓库内，严禁提交**）。架构：
+**用户已决定弃用隧道方案，凭据目录 `/workspace/.tunnel/` 已删除，严禁尝试重建或恢复凭据。** 现状与影响：
 
-```
-Chrome --(HTTP 代理 18082)--> privoxy 域名分流
-  ├─ Google 全系（含 google.com.hk 等 ccTLD）→ SOCKS5 127.0.0.1:1080
-  │    └─ SSH -D 动态转发（经 18080 HTTP 代理 CONNECT 中转，22 直连被墙）
-  │         └─ 海外 VPS 出口（Google 地理定位为中华区，google.com 会 302 到 .com.hk）
-  ├─ 本地回环 → 直连（dev server）
-  └─ 其余外域 → 沙箱代理 18080（Bing/GitHub/emallsoon 原路径）
-```
-
-要点与踩坑（实测）：
-- **privoxy 规则"最后匹配生效"**：默认规则（`forward / 18080`）必须放最前，
-  Google 规则放最后；顺序反了会让所有流量走默认路由（表现为 Google 依旧被墙）
-- **`socks5h` 是 curl 参数名**，privoxy 用 `forward-socks5t`（t = 远端 DNS，避免本地
-  污染）；`forward-socks5` 是本地解析，勿用
-- **Chrome 忽略 file:// PAC**：MCP 启动的实例带 `--proxy-pac-url` 仍对所有域名报
-  `ERR_NAME_NOT_RESOLVED`（对照实验：CLI 同参数正常），所以必须在代理层分流
-- 隧道断线自动重连（`start-tunnel.sh` 内置 while 循环）；仅影响 Google，
-  Bing/emallsoon 验证不受影响
-- `setup-browser.sh` 已集成：重装 privoxy/sshpass → 恢复配置 → 启动隧道
-- **GSC 现在可从沙箱浏览器直接操作**（已实测加载成功）；
-  Search Console API（googleapis.com）走隧道也可达
+- 沙箱内若有残留隧道进程（`127.0.0.1:1080` 监听），属重置后即消失的孤儿进程；
+  `setup-browser.sh` 的三级代理探测（18082 privoxy → 1080 隧道 → 18080 沙箱代理）
+  会在其消失后自动回退到沙箱代理，无需人工干预
+- **Google/GSC 自沙箱访问能力随之失效**；如未来需要恢复，须由用户重新提供海外
+  VPS 并重建 `/workspace/.tunnel/`（凭据不进仓库），届时 `setup-browser.sh` 的
+  条件化隧道代码会自动激活
+- 曾验证有效的架构与踩坑要点（privoxy 规则最后匹配生效、`forward-socks5t`
+  远端 DNS、Chrome 忽略 file:// PAC 等）存档于 git 历史提交 `de6e29e`，
+  含 `scripts/privoxy-emallsoon.conf` 完整分流配置，需要时可直接翻阅
 
 
 ## 真实浏览器（Chrome DevTools MCP）
