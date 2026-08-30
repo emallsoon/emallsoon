@@ -158,6 +158,28 @@ CSS 变量定义在 `src/styles/global.css`，全局公共类（`.calc-grid`/`.r
 - **依赖易失**：沙箱重置后 `node_modules/` 会丢失，构建前先 `npm install`。
 - **构建命令**：`cd /workspace/emallsoon && npm install && npm run build`
 
+### 网络出口与封锁档案（2026-08-30 深度排查定论）
+
+**沙箱出口位于中国大陆（天津电信，出口 IP 180.184.33.18），受 GFW 封锁。**
+
+| 域名/IP | 状态 | 机制 |
+|---------|------|------|
+| Google 全系（search/accounts/www/youtube/googleapis/gstatic） | ❌ 不可达 | DNS 污染（假 IP `2001::1` 或国内 IP）+ Google IP 段 TCP 丢弃 |
+| Facebook / Twitter | ❌ 不可达 | 同上（DNS 全部污染到 `2001::1`） |
+| 外部 UDP 53（如 8.8.8.8）| ❌ 超时 | 出口防火墙 |
+| Bing / Microsoft 登录（login.live.com 等） | ✅ 走代理正常 | 未被墙 |
+| GitHub / Cloudflare / 阿里 DoH（dns.alidns.com） | ✅ 正常 | 未被墙 |
+
+排查方法论（供复用，勿重复踩坑）：
+1. **本地代理是"乐观型"**：CONNECT 一律先回 200 再连上游，上游失败表现为 TLS 阶段
+   `unexpected eof`——**不要误判为 SNI 过滤**（已用"换 SNI 不换 IP"和"无 SNI 连 IP"双实验排除）
+2. 连 CDN IP 测不同 SNI 时，服务器端 SNI 路由会关闭不认识的域名（Bing IP + google SNI
+   必然失败），这是正常 CDN 行为，不是出口封锁证据
+3. 结论：**GSC（Google Search Console）无法从沙箱访问**，Search Console API
+   （googleapis.com）同样被墙。SEO 数据里 Bing Webmaster 可在沙箱浏览器直接操作；
+   GSC 数据需用户本机查看后转述
+
+
 ## 真实浏览器（Chrome DevTools MCP）
 
 **2026-08-30 已修复并纳入自愈体系**。此前 MCP 报 `Could not find Google Chrome executable

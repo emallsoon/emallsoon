@@ -68,11 +68,15 @@ fi
 # ---------- 3. 安装 /opt/google/chrome 包装器 ----------
 # MCP 只认 /opt/google/chrome/chrome 这个路径；包装脚本自动附加
 # root/无显示器环境必需的启动参数 + 沙箱出口代理。
-# 代理说明（2026-08-30 实测）：沙箱直连仅 Cloudflare 等少数域可达，
-# Google/Bing 等外部域必须走 127.0.0.1:18080；本地回环绕过代理
-# 保证 dev server 直连。注意：search.google.com / accounts.google.com /
-# www.google.com 被出口策略封锁（TLS 握手被切断），GSC 无法从沙箱访问；
-# googleapis/gstatic 静态资源域可通。Bing Webmaster 走代理正常。
+# 代理说明（2026-08-30 深度排查定论）：沙箱出口位于中国大陆
+# （天津电信，出口 IP 180.184.33.18），受 GFW 封锁——Google/Facebook/
+# Twitter/YouTube 全系不可达：DNS 被污染（假 IP 2001::1 或国内 IP）、
+# Google IP 段 TCP 层被丢弃（直连与走代理均失败，与 SNI 无关，
+# 已用"无 SNI 连 Google IP"实验排除）。GSC 因此无法从沙箱访问，
+# 需用户本机查看。Bing Webmaster / GitHub / Cloudflare / 阿里 DoH 正常。
+# 另注意：本地 HTTP 代理是"乐观型"（CONNECT 先回 200 再连上游），
+# 上游失败表现为 TLS 阶段 unexpected eof，勿误判为 SNI 过滤。
+# 本地回环绕过代理保证 dev server 直连。
 mkdir -p /opt/google/chrome
 cat > /opt/google/chrome/chrome << WRAPPER
 #!/bin/bash
