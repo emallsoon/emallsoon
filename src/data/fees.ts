@@ -7,13 +7,16 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-08-27
+ * Last verified against official sources: 2026-08-30
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
  *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17)
- *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced
+ *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced.
+ *    2026-08-30: Advanced third-party gateway transaction fee corrected 0.5% → 0.6%
+ *    (official pricing page now lists 0.6%; Basic 2% / Grow 1% unchanged).
+ *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30.
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
- *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-27)
- *  - eBay: eBay Seller Center "Understanding selling fees" (verified 2026-08-27)
+ *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-30)
+ *  - eBay: eBay Seller Center "Understanding selling fees" (verified 2026-08-30)
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
@@ -56,7 +59,7 @@ export interface ShopifyPlan {
 export const shopifyPlans: ShopifyPlan[] = [
   { id: 'basic', label: 'Basic — 2% transaction fee', txnPct: 2, procPct: 2.9, procFlat: 0.3 },
   { id: 'grow', label: 'Grow — 1% transaction fee', txnPct: 1, procPct: 2.7, procFlat: 0.3 },
-  { id: 'advanced', label: 'Advanced — 0.5% transaction fee', txnPct: 0.5, procPct: 2.5, procFlat: 0.3 },
+  { id: 'advanced', label: 'Advanced — 0.6% transaction fee', txnPct: 0.6, procPct: 2.5, procFlat: 0.3 },
 ];
 
 /** Default processing prefill (Basic plan, US online standard card rate) */
