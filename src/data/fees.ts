@@ -7,16 +7,30 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-08-31
+ * Last verified against official sources: 2026-10-20
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
- *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17)
+ *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17).
+ *    2026-10-20 re-verified: non-peak rate card ranges unchanged; note holiday peak
+ *    rates apply 2026-10-15 → 2027-01-14 (same +$0.08/unit-style uplift as 2025),
+ *    and the 3.5% surcharge applies on top of peak rates too.
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced.
  *    2026-08-30: Advanced third-party gateway transaction fee corrected 0.5% → 0.6%
  *    (official pricing page now lists 0.6%; Basic 2% / Grow 1% unchanged).
- *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30.
- *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy" (verified 2026-08-31)
- *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-08-30)
- *  - eBay: eBay help "Selling fees" (id=4822) + "Store selling fees" (id=4809), verified 2026-08-31
+ *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30. Re-verified 2026-10-20, no change.
+ *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
+ *    + Fees & Payments Policy (verified 2026-10-20; 2026-08-31 before that).
+ *    $0.20 / 6.5% / 3% + $0.25 / Offsite Ads 15%–12% capped $100 all unchanged.
+ *    NOTE: policy now mentions a one-time shop set-up fee ("varies by location")
+ *    with no published amount — not modeled, informational only.
+ *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-10-20;
+ *    official category table revised 2026-05-14 still shows 6%).
+ *  - eBay: eBay help "Selling fees" (id=4822) + "Store selling fees" (id=4809),
+ *    verified 2026-10-20.
+ *    2026-10-20: Computers (store) corrected 7.35% → 9.35% per official store fee
+ *    table (7.35% only applies to a select accessories sub-list: 3D printers,
+ *    cables/connectors, keyboards & mice, power protection, tablet accessories;
+ *    main items like laptops/desktops/CPUs/monitors are 9.35%). All other rows
+ *    re-verified against the official tables — unchanged.
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
@@ -40,10 +54,14 @@ export const referralDefault = 15;
  * 2026 rate card varies by size tier AND product price band
  * (under $10 / $10–50 / over $50). Per the official 2026 non-peak
  * fulfillment fee table, small standard runs roughly $2.43–$4.22 and
- * large standard roughly $2.91–$6.93 per unit (3+ lb large standard
- * starts at $6.97). A 3.5% fuel & logistics surcharge (effective
- * 2026-04-17) applies on top of the fulfillment fee, adding roughly
- * $0.15–$0.35 per unit. Verified 2026-08-31.
+ * large standard roughly $2.91–$6.93 per unit (the 2.75–3 lb large
+ * standard tier runs $5.85–$6.93, and the tier above 3 lb starts at
+ * $6.97). A 3.5% fuel & logistics surcharge (effective 2026-04-17)
+ * applies on top of the fulfillment fee, adding roughly $0.15–$0.35
+ * per unit. Holiday PEAK fulfillment fees apply 2026-10-15 →
+ * 2027-01-14 (roughly $0.08–$0.35 higher per unit than non-peak);
+ * the 3.5% surcharge applies on top of peak rates as well.
+ * Verified 2026-10-20.
  */
 export const fbaFeeDefault = 5.5;
 
@@ -103,7 +121,12 @@ export interface TikTokCategory {
  * TikTok Shop US referral fees (2026).
  * The referral fee is a single unified charge that ALREADY includes
  * payment processing — there is no separate transaction or processing fee.
- * Source: TikTok Shop US Seller Center, verified 2026-08-26.
+ * ⚠️ UNCONFIRMED: some seller publications report the standard US rate rose
+ * to 8% (most non-food categories) effective 2026-08-04, but TikTok's own
+ * Seller University fee page (revised 2026-05-14, re-checked 2026-10-20)
+ * still lists 6%. Kept at the officially published 6% — re-check Seller
+ * Center statements before trusting either figure. NEEDS HUMAN CONFIRMATION.
+ * Source: TikTok Shop US Seller Center, verified 2026-10-20.
  */
 export const tiktokCategories: TikTokCategory[] = [
   { id: 'most', label: 'Most categories · 6%', pct: 6 },
@@ -168,7 +191,7 @@ export const ebayCategories: EbayCategory[] = [
   { id: 'sneakers', label: 'Sneakers (over $150)', individualPct: 8, storePct: 7, perOrderFeeApplies: false, individualThreshold: null, individualOverPct: null, storeThreshold: null, storeOverPct: null },
   { id: 'guitars', label: 'Guitars & Basses', individualPct: 6.7, storePct: 6.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
   { id: 'electronics', label: 'Consumer Electronics', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'computers', label: 'Computers', individualPct: 13.6, storePct: 7.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
+  { id: 'computers', label: 'Computers', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
   { id: 'coins', label: 'Coins & Paper Money', individualPct: 13.25, storePct: 9, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 4000, storeOverPct: 2.35 },
   { id: 'tradingcards', label: 'Trading Cards', individualPct: 13.25, storePct: 12.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
   { id: 'autparts', label: 'Auto Parts & Accessories', individualPct: 13.6, storePct: 11.5, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 1000, storeOverPct: 2.35 },
