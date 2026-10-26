@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     q: 'How does eBay calculate the final value fee?',
-    a: 'The final value fee is calculated on the total amount of the sale: item price + shipping charged to buyer + sales tax + handling charges. For most categories as an individual seller, that is 13.6% of the total, plus a per-order fee. High-value sales get a lower rate on the portion above a category threshold: for most categories 2.35% above $7,500, while Store subscribers hit the reduced rate sooner at $2,500. Exceptions: Jewelry & Watches pays 9% above $5,000 (7% for stores), Auto Parts store subscribers above just $1,000, and Coins & Paper Money store subscribers above $4,000. The calculator applies these tiered rates automatically based on your inputs.',
+    a: 'The final value fee is calculated on the total amount of the sale: item price + shipping charged to buyer + sales tax + handling charges. For most categories as an individual seller, that is 13.6% of the total, plus a per-order fee. High-value sales get a lower rate on the portion above a category threshold: for most categories 2.35% above $7,500, while Store subscribers hit the reduced rate sooner at $2,500. Auto Parts and Coins & Paper Money use different Store thresholds. High-value Jewelry and Watches use different structures, so verify the exact eBay category table for those sales.',
   },
   {
     q: 'Why is my eBay profit lower than expected?',
@@ -274,8 +274,8 @@ const freeListings = ebayFreeListingsPerMonth;
           High-value sales also get a break: only the portion of the sale
           above a category threshold is charged the reduced rate — 2.35%
           over $7,500 in most categories for individual sellers, and over
-          $2,500 for Store subscribers. A few categories differ (Jewelry &
-          Watches, Auto Parts, Coins &amp; Paper Money), and the calculator
+          $2,500 for Store subscribers. A few categories differ (Auto Parts,
+          Coins &amp; Paper Money), and the calculator
           applies each tier automatically.
         </p>
 
@@ -299,9 +299,9 @@ const freeListings = ebayFreeListingsPerMonth;
           discounted final value fees. For most categories, the rate drops
           from 13.6% to 12.7% — a 0.9% saving. But for certain categories
           the discount is dramatic: Consumer Electronics drops from 13.6%
-          to 9.35% (4.25% saving), Computers from 13.6% to 7.35% (6.25%
-          saving). If you sell $1,000/month of computers, the 6.25%
-          saving ($62.50) dwarfs the Basic Store fee ($21.95/month billed
+          to 9.35% (4.25% saving), and most Computers/Tablets &amp; Networking
+          items use the same 9.35% Store preset. If you sell $1,000/month
+          in a qualifying category, the 4.25% saving ($42.50) can exceed the Basic Store fee ($21.95/month billed
           annually; $27.95 month-to-month). Toggle
           the Store checkbox in the calculator to see if your category and
           volume justify the subscription.

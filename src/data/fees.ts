@@ -7,30 +7,28 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-10-20
+ * Last verified against official sources: 2026-10-26
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
  *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17).
- *    2026-10-20 re-verified: non-peak rate card ranges unchanged; note holiday peak
- *    rates apply 2026-10-15 → 2027-01-14 (same +$0.08/unit-style uplift as 2025),
- *    and the 3.5% surcharge applies on top of peak rates too.
+ *    2026-10-26 re-verified: holiday peak fulfillment fees apply
+ *    2026-10-15 → 2027-01-14. Amazon states the 3.5% fuel & logistics
+ *    surcharge does not apply while those holiday peak fees are in effect.
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced.
  *    2026-08-30: Advanced third-party gateway transaction fee corrected 0.5% → 0.6%
  *    (official pricing page now lists 0.6%; Basic 2% / Grow 1% unchanged).
- *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30. Re-verified 2026-10-20, no change.
+ *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30. Re-verified 2026-10-26, no change.
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
- *    + Fees & Payments Policy (verified 2026-10-20; 2026-08-31 before that).
+ *    + Fees & Payments Policy (verified 2026-10-26; 2026-08-31 before that).
  *    $0.20 / 6.5% / 3% + $0.25 / Offsite Ads 15%–12% capped $100 all unchanged.
  *    NOTE: policy now mentions a one-time shop set-up fee ("varies by location")
  *    with no published amount — not modeled, informational only.
- *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-10-20;
+ *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-10-26;
  *    official category table revised 2026-05-14 still shows 6%).
  *  - eBay: eBay help "Selling fees" (id=4822) + "Store selling fees" (id=4809),
- *    verified 2026-10-20.
- *    2026-10-20: Computers (store) corrected 7.35% → 9.35% per official store fee
- *    table (7.35% only applies to a select accessories sub-list: 3D printers,
- *    cables/connectors, keyboards & mice, power protection, tablet accessories;
- *    main items like laptops/desktops/CPUs/monitors are 9.35%). All other rows
- *    re-verified against the official tables — unchanged.
+ *    verified 2026-10-26. Broad category presets are labelled "Most" where
+ *    official subcategory exceptions exist. Jewelry and Watches are omitted
+ *    because their current high-value structures do not fit this calculator's
+ *    simple portion-above-threshold model.
  */
 
 /* ---------- Amazon referral fee presets (US, approx.) ---------- */
@@ -40,10 +38,9 @@ export interface ReferralPreset {
 }
 
 export const referralPresets: ReferralPreset[] = [
-  { label: 'Most categories · 15%', pct: 15 },
-  { label: 'Grocery · 8%', pct: 8 },
-  { label: 'Apparel · 17%', pct: 17 },
-  { label: 'Jewelry · 20%', pct: 20 },
+  { label: 'Most common categories · 15%', pct: 15 },
+  { label: 'Grocery (sale ≤ $15) · 8%', pct: 8 },
+  { label: 'Apparel (sale > $20) · 17%', pct: 17 },
 ];
 
 /** default referral fee percentage */
@@ -56,12 +53,11 @@ export const referralDefault = 15;
  * fulfillment fee table, small standard runs roughly $2.43–$4.22 and
  * large standard roughly $2.91–$6.93 per unit (the 2.75–3 lb large
  * standard tier runs $5.85–$6.93, and the tier above 3 lb starts at
- * $6.97). A 3.5% fuel & logistics surcharge (effective 2026-04-17)
- * applies on top of the fulfillment fee, adding roughly $0.15–$0.35
- * per unit. Holiday PEAK fulfillment fees apply 2026-10-15 →
- * 2027-01-14 (roughly $0.08–$0.35 higher per unit than non-peak);
- * the 3.5% surcharge applies on top of peak rates as well.
- * Verified 2026-10-20.
+ * $6.97). Outside the holiday peak period, a 3.5% fuel & logistics
+ * surcharge applies to the fulfillment fee. Holiday PEAK fulfillment
+ * fees apply 2026-10-15 → 2027-01-14; Amazon states that the 3.5%
+ * surcharge does not apply during that period.
+ * Verified 2026-10-26.
  */
 export const fbaFeeDefault = 5.5;
 
@@ -100,8 +96,8 @@ export interface OffsiteAdsOption {
 
 export const offsiteAdsOptions: OffsiteAdsOption[] = [
   { id: 'none', label: 'No Offsite Ads fee', pct: 0 },
-  { id: 'mandatory', label: 'Mandatory · 15% (under $10k/yr)', pct: 15 },
-  { id: 'opted', label: 'Opted in · 12% (over $10k/yr)', pct: 12 },
+  { id: 'optional', label: 'Optional · 15% (under $10k in 365 days)', pct: 15 },
+  { id: 'mandatory', label: 'Mandatory · 12% ($10k+ in 365 days)', pct: 12 },
 ];
 
 /**
@@ -123,16 +119,14 @@ export interface TikTokCategory {
  * payment processing — there is no separate transaction or processing fee.
  * ⚠️ UNCONFIRMED: some seller publications report the standard US rate rose
  * to 8% (most non-food categories) effective 2026-08-04, but TikTok's own
- * Seller University fee page (revised 2026-05-14, re-checked 2026-10-20)
+ * Seller University fee page (revised 2026-05-14, re-checked 2026-10-26)
  * still lists 6%. Kept at the officially published 6% — re-check Seller
  * Center statements before trusting either figure. NEEDS HUMAN CONFIRMATION.
- * Source: TikTok Shop US Seller Center, verified 2026-10-20.
+ * Source: TikTok Shop US Seller Center, verified 2026-10-26.
  */
 export const tiktokCategories: TikTokCategory[] = [
   { id: 'most', label: 'Most categories · 6%', pct: 6 },
-  { id: 'jewelry', label: 'Jewelry · 5%', pct: 5 },
-  { id: 'preowned', label: 'Pre-owned · 5%', pct: 5 },
-  { id: 'newseller', label: 'New seller promo · 3% (first 30 days)', pct: 3 },
+  { id: 'fine-jewelry', label: 'Selected fine jewelry categories · 5%', pct: 5 },
 ];
 
 /** Default referral fee percentage */
@@ -178,25 +172,23 @@ export interface EbayCategory {
  * Tiered structure (portion above threshold charged at overPct):
  *  - Most non-store categories: 2.35% on the portion over $7,500.
  *  - Most store categories: 2.35% on the portion over $2,500.
- *  - Exceptions: Jewelry & Watches 9% over $5,000 (7% for stores);
- *    Auto Parts stores threshold $1,000; Coins & Paper Money stores
+ *  - Exceptions: Auto Parts stores threshold $1,000; Coins & Paper Money stores
  *    threshold $4,000; Sneakers are flat with no per-order fee.
  * Source: eBay help "Selling fees" (id=4822) + "Store selling fees"
- * (id=4809), verified 2026-08-31.
+ * (id=4809), verified 2026-10-26.
  */
 export const ebayCategories: EbayCategory[] = [
   { id: 'most', label: 'Most categories', individualPct: 13.6, storePct: 12.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'books', label: 'Books, Movies & Music', individualPct: 15.3, storePct: 15.3, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'jewelry', label: 'Jewelry & Watches', individualPct: 15, storePct: 13, perOrderFeeApplies: true, individualThreshold: 5000, individualOverPct: 9, storeThreshold: 5000, storeOverPct: 7 },
-  { id: 'sneakers', label: 'Sneakers (over $150)', individualPct: 8, storePct: 7, perOrderFeeApplies: false, individualThreshold: null, individualOverPct: null, storeThreshold: null, storeOverPct: null },
+  { id: 'books', label: 'Books, Movies & most Music (excl. Vinyl)', individualPct: 15.3, storePct: 15.3, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
+  { id: 'sneakers', label: 'Sneakers ($150 or more)', individualPct: 8, storePct: 7, perOrderFeeApplies: false, individualThreshold: null, individualOverPct: null, storeThreshold: null, storeOverPct: null },
   { id: 'guitars', label: 'Guitars & Basses', individualPct: 6.7, storePct: 6.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'electronics', label: 'Consumer Electronics', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'computers', label: 'Computers', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
+  { id: 'electronics', label: 'Most Consumer Electronics', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
+  { id: 'computers', label: 'Most Computers/Tablets & Networking', individualPct: 13.6, storePct: 9.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
   { id: 'coins', label: 'Coins & Paper Money', individualPct: 13.25, storePct: 9, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 4000, storeOverPct: 2.35 },
   { id: 'tradingcards', label: 'Trading Cards', individualPct: 13.25, storePct: 12.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'autparts', label: 'Auto Parts & Accessories', individualPct: 13.6, storePct: 11.5, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 1000, storeOverPct: 2.35 },
+  { id: 'autparts', label: 'Most Auto Parts & Accessories', individualPct: 13.6, storePct: 11.5, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 1000, storeOverPct: 2.35 },
   { id: 'stamps', label: 'Stamps', individualPct: 13.6, storePct: 9.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
-  { id: 'instruments', label: 'Musical Instruments & Gear', individualPct: 13.6, storePct: 10.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
+  { id: 'instruments', label: 'Most Musical Instruments & Gear', individualPct: 13.6, storePct: 10.35, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
 ];
 
 /** Per-order fees (included in final value fee) */
