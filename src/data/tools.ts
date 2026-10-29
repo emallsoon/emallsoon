@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   /** path on the site, with trailing slash */
   href: string;
-  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok' | 'ebay' | 'compare';
+  icon: 'fba' | 'shopify' | 'etsy' | 'roas' | 'discount' | 'breakeven' | 'tiktok' | 'ebay' | 'walmart' | 'compare';
 }
 
 export const tools: Tool[] = [
@@ -89,6 +89,16 @@ export const tools: Tool[] = [
       'Factor in final value fees by category, per-order charges, insertion fees, promoted listings, and Store subscriber savings to see true profit on every eBay sale.',
     href: '/tools/ebay-fee-calculator/',
     icon: 'ebay',
+  },
+  {
+    slug: 'walmart-marketplace-fee-calculator',
+    name: 'Walmart Marketplace Fee & Profit Calculator',
+    shortName: 'Walmart Fees',
+    tag: 'Walmart',
+    description:
+      'Calculate Walmart Marketplace referral fees by category, then subtract your own fulfillment, advertising, product, and other costs to see profit per sale.',
+    href: '/tools/walmart-marketplace-fee-calculator/',
+    icon: 'walmart',
   },
   {
     slug: 'platform-fee-comparison',

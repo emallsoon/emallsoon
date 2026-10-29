@@ -1,0 +1,322 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+import { walmartCategories } from '../../lib/walmart-fees';
+
+const tool = tools.find((entry) => entry.slug === 'walmart-marketplace-fee-calculator')!;
+const relatedSlugs = ['ebay-fee-calculator', 'amazon-fba-profit-calculator', 'platform-fee-comparison'];
+const related = relatedSlugs.map((slug) => tools.find((entry) => entry.slug === slug)!).filter(Boolean);
+
+const title = 'Walmart Marketplace Fee & Profit Calculator | emallsoon';
+const description =
+  'Calculate Walmart Marketplace referral fees and profit by category. Add your own fulfillment, ads, COGS, and other costs. Free, private, and instant.';
+
+const sourceUrl = 'https://marketplace.walmart.com/pricing/';
+const verifiedDate = '2026-10-29';
+
+const faqs = [
+  {
+    q: 'How much does Walmart Marketplace charge sellers?',
+    a: 'Walmart Marketplace has no setup, monthly, or hidden fees. It charges a referral fee when a sale is completed. The percentage depends on the product category and, for some categories, the total sales price or price portions.',
+  },
+  {
+    q: 'What amount is the Walmart referral fee calculated on?',
+    a: 'The referral fee is calculated from the total sales price, which includes the item price plus shipping and handling, gift wrap, and other charges paid by the buyer.',
+  },
+  {
+    q: 'Does this calculator estimate WFS fulfillment fees?',
+    a: 'No. Walmart Fulfillment Services costs can depend on product and shipment details. This calculator does not invent an automatic WFS rate. Enter the actual fulfillment or shipping cost you expect to pay.',
+  },
+  {
+    q: 'How do tiered Walmart referral fees work?',
+    a: 'Some categories use a rate selected by the total sales price, while others apply one rate to the first price portion and a lower rate only to the amount above a threshold. The calculator applies the structure shown for the selected category.',
+  },
+  {
+    q: 'Is this an official Walmart calculator?',
+    a: 'No. This is an independent planning tool. Rates were checked against Walmart Marketplace’s official pricing page on October 29, 2026. Verify your category and current charges before listing.',
+  },
+];
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Walmart Marketplace Fee & Profit Calculator',
+  url: 'https://emallsoon.com/tools/walmart-marketplace-fee-calculator/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Any',
+  description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://emallsoon.com/' },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Walmart Marketplace Fee Calculator',
+      item: 'https://emallsoon.com/tools/walmart-marketplace-fee-calculator/',
+    },
+  ],
+};
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: { '@type': 'Answer', text: faq.a },
+  })),
+};
+---
+
+<BaseLayout title={title} description={description} path={tool.href} jsonLd={[softwareJsonLd, breadcrumbJsonLd, faqJsonLd]}>
+  <section class="section--tight section">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span class="sep">/</span>
+        <a href="/#tools">Tools</a><span class="sep">/</span>
+        <span>Walmart Marketplace Fee Calculator</span>
+      </nav>
+
+      <header class="page-head">
+        <p class="eyebrow">Walmart Marketplace · free · no signup</p>
+        <h1>Walmart Marketplace Fee &amp; Profit Calculator</h1>
+        <p class="lede">
+          Calculate the referral fee on the full buyer-paid sales price, then subtract the fulfillment,
+          advertising, product, and other costs you enter to see profit per completed sale.
+        </p>
+      </header>
+
+      <div class="calc-grid">
+        <form class="calc-form" id="walmart-form" autocomplete="off">
+          <div class="form-sec">
+            <p class="fs-title">Sale details</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="item-price">Item price</label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="item-price" value="100.00" min="0" step="0.01" inputmode="decimal" /></div>
+              </div>
+              <div class="field">
+                <label for="category">Walmart category</label>
+                <select id="category">
+                  {walmartCategories.map((category) => <option value={category.id}>{category.label}</option>)}
+                </select>
+                <span class="hint">Choose the closest official category</span>
+              </div>
+              <div class="field">
+                <label for="shipping-charged">Shipping &amp; handling charged</label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="shipping-charged" value="0.00" min="0" step="0.01" inputmode="decimal" /></div>
+                <span class="hint">Buyer-paid amount; enter 0 for free shipping</span>
+              </div>
+              <div class="field">
+                <label for="other-charges">Gift wrap &amp; other buyer charges</label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="other-charges" value="0.00" min="0" step="0.01" inputmode="decimal" /></div>
+                <span class="hint">Included in Walmart's total sales price</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <p class="fs-title">Seller-entered costs per sale</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="cogs">Product cost / COGS</label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="cogs" value="40.00" min="0" step="0.01" inputmode="decimal" /></div>
+                <span class="hint">Your landed unit cost</span>
+              </div>
+              <div class="field">
+                <label for="fulfillment">Fulfillment / shipping cost</label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="fulfillment" value="8.00" min="0" step="0.01" inputmode="decimal" /></div>
+                <span class="hint">Enter your actual WFS, 3PL, or self-fulfillment estimate</span>
+              </div>
+              <div class="field">
+                <label for="ads">Advertising cost</label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="ads" value="5.00" min="0" step="0.01" inputmode="decimal" /></div>
+                <span class="hint">Average ad spend attributed to one sale</span>
+              </div>
+              <div class="field">
+                <label for="other-costs">Other seller costs <span class="opt">(optional)</span></label>
+                <div class="input-shell"><span class="affix">$</span><input type="number" id="other-costs" value="0.00" min="0" step="0.01" inputmode="decimal" /></div>
+                <span class="hint">Returns allowance, packaging, software, or overhead</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <aside class="calc-sticky" aria-label="Results">
+          <div class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-head"><p class="rh-title">Walmart Profit Receipt</p><p class="rh-sub">per completed sale · live</p></div>
+              <div class="rline"><span class="rl-label">Total sales price</span><span class="rl-dots"></span><span class="rl-val" id="r-total">$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Referral fee <span class="rl-sub-label" id="r-rate"></span></span><span class="rl-dots"></span><span class="rl-val" id="r-referral">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Fulfillment / shipping</span><span class="rl-dots"></span><span class="rl-val" id="r-fulfillment">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Advertising</span><span class="rl-dots"></span><span class="rl-val" id="r-ads">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Product cost / COGS</span><span class="rl-dots"></span><span class="rl-val" id="r-cogs">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Other seller costs</span><span class="rl-dots"></span><span class="rl-val" id="r-other">−$0.00</span></div>
+              <div class="rline rline--total"><span class="rl-label">Profit / sale</span><span class="rl-dots"></span><span class="rl-val num" id="r-profit" aria-live="polite">$0.00</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Profit margin</span><span class="rl-dots"></span><span class="rl-val" id="r-margin">0%</span></div>
+              <div class="rline rline--meta"><span class="rl-label">Total costs</span><span class="rl-dots"></span><span class="rl-val" id="r-costs">$0.00</span></div>
+              <div class="verdict pos" id="r-verdict">profitable ✓</div>
+              <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
+              <p class="disclaimer">
+                Estimate only. No automatic WFS rate is assumed: fulfillment, ads, COGS, and other costs are the values you enter. Verify the exact category and current terms before listing.
+              </p>
+            </div>
+            <div class="tear"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap"><div class="prose">
+      <p class="eyebrow">How the math works</p>
+      <h2>Referral fee first, your real operating costs second</h2>
+      <p>
+        Walmart Marketplace says there are no setup, monthly, or hidden fees. A referral fee is charged when a sale is completed. That makes the platform charge straightforward, but it does not make every order equally profitable: category rates differ, and fulfillment, advertising, inventory, and operating costs remain seller-specific.
+      </p>
+      <div class="formula-box">total_sales_price = item_price + shipping_handling + gift_wrap + other_buyer_charges</div>
+      <p>
+        The calculator applies the selected category's referral-fee structure to that total sales price. It then subtracts only the costs you provide. It deliberately does not estimate a complex Walmart Fulfillment Services fee from incomplete dimensions or shipping data.
+      </p>
+
+      <h3>Flat and price-band categories</h3>
+      <p>
+        Many representative categories use a flat rate, such as 15% for Everything Else / Home, 8% for Consumer Electronics, and 6% for Personal Computers. Apparel selects 5%, 10%, or 15% based on the total sales price. Baby / Beauty and Grocery similarly use lower rates at or below their stated price thresholds and 15% above them.
+      </p>
+
+      <h3>Marginal price tiers</h3>
+      <p>
+        Other categories split the price into portions. Electronics Accessories, for example, charges 15% on the first $100 and 8% on the amount above $100. Furniture uses 15% on the first $200 and 10% above; Watches uses 15% on the first $1,500 and 3% above. The lower rate does not replace the first-tier rate on the whole sale.
+      </p>
+      <div class="formula-box">profit = total_sales_price − referral_fee − fulfillment − ads − COGS − other_costs</div>
+
+      <h3>What the calculator includes—and what it does not</h3>
+      <p>
+        Included: the Marketplace referral fee for the listed representative categories, buyer-paid charges that form total sales price, and seller-entered fulfillment, advertising, COGS, and other costs. Not included automatically: WFS pricing, taxes, refunds, chargebacks, or category exceptions not represented in the dropdown.
+      </p>
+
+      <h3>Official source and verification date</h3>
+      <p>
+        Referral-fee facts and category presets were checked against the <a href={sourceUrl} rel="nofollow">Walmart Marketplace official pricing page</a> on <strong>{verifiedDate}</strong>. Walmart can change pricing or category classification, so confirm the live official page and your seller account before making a pricing decision.
+      </p>
+    </div></div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head"><div><p class="eyebrow">Questions</p><h2>Walmart Marketplace fee FAQ</h2></div></div>
+      <div class="faq">{faqs.map((faq) => <details><summary>{faq.q}</summary><div class="faq-body"><p>{faq.a}</p></div></details>)}</div>
+    </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap">
+      <div class="section-head"><div><p class="eyebrow">Keep calculating</p><h2>Related seller tools</h2></div></div>
+      <div class="tool-grid">{related.map((entry, index) => <ToolCard tool={entry} delayClass={`rise-${index + 1}`} />)}</div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head { max-width: 780px; margin-bottom: 40px; display: grid; gap: 14px; }
+  .opt { font-weight: 400; opacity: 0.6; font-size: 0.85em; }
+  .rl-sub-label { opacity: 0.6; font-size: 0.8em; margin-left: 4px; }
+</style>
+
+<script>
+  import { calculateWalmartProfit } from '../../lib/walmart-fees';
+
+  function element<T extends HTMLElement = HTMLInputElement>(id: string): T {
+    return document.getElementById(id) as T;
+  }
+  const money = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const read = (id: string) => {
+    const value = Number.parseFloat(element<HTMLInputElement>(id).value);
+    return Number.isFinite(value) && value >= 0 ? value : 0;
+  };
+
+  function recalculate() {
+    const fulfillmentCost = read('fulfillment');
+    const adsCost = read('ads');
+    const cogs = read('cogs');
+    const otherCosts = read('other-costs');
+    const result = calculateWalmartProfit({
+      itemPrice: read('item-price'),
+      buyerCharges: read('shipping-charged') + read('other-charges'),
+      categoryId: element<HTMLSelectElement>('category').value,
+      fulfillmentCost,
+      adsCost,
+      cogs,
+      otherCosts,
+    });
+
+    element('r-total').textContent = money(result.totalSalesPrice);
+    element('r-referral').textContent = `−${money(result.referralFee)}`;
+    element('r-rate').textContent = `(${result.effectiveReferralRatePct.toFixed(1)}% effective)`;
+    element('r-fulfillment').textContent = `−${money(fulfillmentCost)}`;
+    element('r-ads').textContent = `−${money(adsCost)}`;
+    element('r-cogs').textContent = `−${money(cogs)}`;
+    element('r-other').textContent = `−${money(otherCosts)}`;
+    element('r-costs').textContent = money(result.totalCosts);
+    element('r-margin').textContent = `${result.marginPct.toFixed(1)}%`;
+
+    const profit = element('r-profit');
+    profit.textContent = `${result.profit < 0 ? '−' : ''}${money(Math.abs(result.profit))}`;
+    profit.classList.toggle('pos', result.profit >= 0);
+    profit.classList.toggle('neg', result.profit < 0);
+
+    const verdict = element('r-verdict');
+    if (result.profit < 0) {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'selling at a loss ✕';
+    } else if (result.marginPct >= 30) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'healthy margin ✓';
+    } else if (result.marginPct >= 15) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'profitable — watch costs';
+    } else if (result.marginPct >= 5) {
+      verdict.className = 'verdict pos';
+      verdict.textContent = 'thin margin — optimize costs';
+    } else {
+      verdict.className = 'verdict neg';
+      verdict.textContent = 'barely breaking even ✕';
+    }
+  }
+
+  ['item-price', 'category', 'shipping-charged', 'other-charges', 'cogs', 'fulfillment', 'ads', 'other-costs'].forEach((id) => {
+    element(id).addEventListener('input', recalculate);
+    element(id).addEventListener('change', recalculate);
+  });
+
+  const copyButton = element<HTMLButtonElement>('copy-btn');
+  copyButton.addEventListener('click', async () => {
+    const lines = [
+      'Walmart Marketplace profit estimate (emallsoon.com)',
+      `Total sales price: ${element('r-total').textContent}`,
+      `Referral fee: ${element('r-referral').textContent} ${element('r-rate').textContent}`,
+      `Fulfillment / shipping: ${element('r-fulfillment').textContent}`,
+      `Advertising: ${element('r-ads').textContent}`,
+      `COGS: ${element('r-cogs').textContent}`,
+      `Other costs: ${element('r-other').textContent}`,
+      `Profit / sale: ${element('r-profit').textContent}`,
+      `Margin: ${element('r-margin').textContent}`,
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      copyButton.textContent = 'Copied ✓';
+    } catch {
+      copyButton.textContent = 'Copy failed — select manually';
+    }
+    setTimeout(() => (copyButton.textContent = 'Copy results'), 1800);
+  });
+
+  recalculate();
+</script>
