@@ -47,7 +47,7 @@ const faqs = [
   },
   {
     q: 'Are the fee defaults current?',
-    a: 'They are editable estimates based on published US fee schedules, last verified August 2026. Since 2026, two changes matter: fulfillment fees now vary by size tier AND product price band (under $10 / $10–50 / over $50), and a 3.5% fuel & logistics surcharge applies to FBA fulfillment fees starting April 17, 2026 (roughly $0.15–$0.35 extra per unit). Always verify exact rates in Seller Central (Revenue Calculator) before committing to inventory.',
+    a: 'They are editable estimates based on published US fee schedules, last verified November 5, 2026. Fulfillment fees vary by size tier and product price band (under $10 / $10–50 / over $50). A 3.5% fuel and logistics surcharge applies to FBA fulfillment fees, including Amazon’s October 15, 2026–January 14, 2027 holiday peak rates. Always verify the exact rate in Seller Central’s Revenue Calculator before committing to inventory.',
   },
 ];
 
@@ -151,7 +151,7 @@ const faqJsonLd = {
                   <span class="affix">$</span>
                   <input type="number" id="fbafee" value={fbaFeeDefault} min="0" step="0.01" inputmode="decimal" />
                 </div>
-                <span class="hint">Varies by size tier &amp; price band; the 3.5% surcharge is waived during the 2026 holiday peak-fee period</span>
+                <span class="hint">Varies by size tier &amp; price band; Amazon applies the 3.5% surcharge to the 2026 holiday peak fee</span>
               </div>
               <div class="field">
                 <label for="storage">Monthly storage per unit</label>

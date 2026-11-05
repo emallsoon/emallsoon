@@ -7,25 +7,25 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-10-26
+ * Last verified against official sources: 2026-11-05
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
  *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17).
- *    2026-10-26 re-verified: holiday peak fulfillment fees apply
- *    2026-10-15 → 2027-01-14. Amazon states the 3.5% fuel & logistics
- *    surcharge does not apply while those holiday peak fees are in effect.
+ *    2026-11-05 re-verified: holiday peak fulfillment fees apply
+ *    2026-10-15 → 2027-01-14. Amazon's official holiday rate card states
+ *    that the 3.5% fuel & logistics surcharge also applies to peak fees.
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced.
  *    2026-08-30: Advanced third-party gateway transaction fee corrected 0.5% → 0.6%
  *    (official pricing page now lists 0.6%; Basic 2% / Grow 1% unchanged).
  *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30. Re-verified 2026-10-26, no change.
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
- *    + Fees & Payments Policy (verified 2026-10-26; 2026-08-31 before that).
+ *    + Fees & Payments Policy (verified 2026-11-05; 2026-10-26 before that).
  *    $0.20 / 6.5% / 3% + $0.25 / Offsite Ads 15%–12% capped $100 all unchanged.
  *    NOTE: policy now mentions a one-time shop set-up fee ("varies by location")
  *    with no published amount — not modeled, informational only.
- *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-10-26;
+ *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-11-05;
  *    official category table revised 2026-05-14 still shows 6%).
  *  - eBay: eBay help "Selling fees" (id=4822) + "Store selling fees" (id=4809),
- *    verified 2026-10-26. Broad category presets are labelled "Most" where
+ *    verified 2026-11-05. Broad category presets are labelled "Most" where
  *    official subcategory exceptions exist. Jewelry and Watches are omitted
  *    because their current high-value structures do not fit this calculator's
  *    simple portion-above-threshold model.
@@ -55,9 +55,9 @@ export const referralDefault = 15;
  * standard tier runs $5.85–$6.93, and the tier above 3 lb starts at
  * $6.97). Outside the holiday peak period, a 3.5% fuel & logistics
  * surcharge applies to the fulfillment fee. Holiday PEAK fulfillment
- * fees apply 2026-10-15 → 2027-01-14; Amazon states that the 3.5%
- * surcharge does not apply during that period.
- * Verified 2026-10-26.
+ * fees apply 2026-10-15 → 2027-01-14, and Amazon's official rate card
+ * states that the 3.5% surcharge applies to those peak fees as well.
+ * Verified 2026-11-05.
  */
 export const fbaFeeDefault = 5.5;
 
@@ -119,10 +119,10 @@ export interface TikTokCategory {
  * payment processing — there is no separate transaction or processing fee.
  * ⚠️ UNCONFIRMED: some seller publications report the standard US rate rose
  * to 8% (most non-food categories) effective 2026-08-04, but TikTok's own
- * Seller University fee page (revised 2026-05-14, re-checked 2026-10-26)
+ * Seller University fee page (revised 2026-05-14, re-checked 2026-11-05)
  * still lists 6%. Kept at the officially published 6% — re-check Seller
  * Center statements before trusting either figure. NEEDS HUMAN CONFIRMATION.
- * Source: TikTok Shop US Seller Center, verified 2026-10-26.
+ * Source: TikTok Shop US Seller Center, verified 2026-11-05.
  */
 export const tiktokCategories: TikTokCategory[] = [
   { id: 'most', label: 'Most categories · 6%', pct: 6 },
@@ -175,7 +175,7 @@ export interface EbayCategory {
  *  - Exceptions: Auto Parts stores threshold $1,000; Coins & Paper Money stores
  *    threshold $4,000; Sneakers are flat with no per-order fee.
  * Source: eBay help "Selling fees" (id=4822) + "Store selling fees"
- * (id=4809), verified 2026-10-26.
+ * (id=4809), verified 2026-11-05.
  */
 export const ebayCategories: EbayCategory[] = [
   { id: 'most', label: 'Most categories', individualPct: 13.6, storePct: 12.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
