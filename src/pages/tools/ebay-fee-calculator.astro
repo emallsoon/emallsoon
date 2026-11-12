@@ -10,6 +10,9 @@ const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
 const title = 'eBay Fee & Profit Calculator — Real Profit Per Sale | emallsoon';
 const description =
   'Free eBay fee calculator. Enter price, category, promoted listings rate, and shipping to see real profit per sale. Includes Store subscriber savings and per-order fees. No signup.';
+const ebayFeeSource = 'https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822';
+const ebayStoreFeeSource = 'https://www.ebay.com/help/selling/fees-credits-invoices/store-selling-fees?id=4809';
+const verifiedDate = '2026-11-12';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
@@ -43,11 +46,11 @@ const faqs = [
   },
   {
     q: 'Is an eBay Store subscription worth it?',
-    a: 'It depends on your category and volume. Store subscriptions start at $4.95/month (Starter) and go up to $2,999.95/month (Enterprise). The main benefit is discounted final value fees and more free monthly listings. For example, a Basic Store ($21.95/month on annual billing — $27.95 month-to-month) reduces electronics fees from 13.6% to 9.35% — saving 4.25% per sale. If you sell $600/month of electronics, the subscription saves you $25.50/month, more than the fee. Use the calculator with the Store toggle on to see if your volume justifies the subscription.',
+    a: 'It depends on your category and volume. The discounted category rates modeled here are for a Basic or higher Store subscription, not the Starter tier. For example, the official Store fee table lists a lower rate for most Consumer Electronics than the non-Store table. Compare your actual subscription cost and category rate before enabling the Store toggle.',
   },
   {
     q: 'What are promoted listings and do I need them?',
-    a: 'Promoted Listings Standard is eBay\'s optional advertising program. You set an ad rate (1% to 20% of the sale price) and only pay if your item sells through a promoted placement. The ad fee is calculated as: sale price × ad rate %. For most sellers, 2–5% is enough to boost visibility without eating margin. The calculator lets you enter your promoted listings rate to see the impact on profit.',
+    a: 'Promoted Listings is eBay’s optional advertising program. If a general campaign earns attribution, eBay applies your ad rate to the total sale amount used for the ad fee, which can include item price, shipping, taxes, and other applicable charges. Enter the rate shown in your campaign rather than relying on a generic recommendation.',
   },
   {
     q: 'How does eBay calculate the final value fee?',
@@ -138,10 +141,18 @@ const freeListings = ebayFreeListingsPerMonth;
                 </div>
                 <span class="hint">If free shipping, enter 0</span>
               </div>
+              <div class="field">
+                <label for="sales-tax">Sales tax collected by eBay</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="sales-tax" value="0.00" min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Included in eBay's fee basis but not your revenue</span>
+              </div>
               <div class="field field-toggle">
                 <label>
                   <input type="checkbox" id="store-sub" />
-                  <span>I have an eBay Store subscription</span>
+                  <span>I have a Basic or higher eBay Store subscription</span>
                 </label>
                 <span class="hint">Unlocks discounted final value fees</span>
               </div>
@@ -195,7 +206,7 @@ const freeListings = ebayFreeListingsPerMonth;
                 <p class="rh-sub">per sale · live</p>
               </div>
 
-              <div class="rline"><span class="rl-label">Total sale amount</span><span class="rl-dots"></span><span class="rl-val" id="r-total">$0.00</span></div>
+              <div class="rline"><span class="rl-label">Fee basis incl. sales tax</span><span class="rl-dots"></span><span class="rl-val" id="r-total">$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">Final value fee <span class="rl-sub-label" id="t-fvf-rate">(13.6%)</span></span><span class="rl-dots"></span><span class="rl-val" id="r-fvf">−$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">Per-order fee</span><span class="rl-dots"></span><span class="rl-val" id="r-perorder">−$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">Promoted listings</span><span class="rl-dots"></span><span class="rl-val" id="r-promoted">−$0.00</span></div>
@@ -227,8 +238,8 @@ const freeListings = ebayFreeListingsPerMonth;
                 $0.40 for orders >$10. High-value sales: only the portion
                 above the category threshold ($7,500 for most categories,
                 $2,500 for Store subscribers) is charged the reduced rate.
-                Store subscriber rates shown when toggled. Excludes sales
-                tax (collected and remitted by eBay).
+                Basic-or-higher Store rates shown when toggled. Sales tax is
+                included in the fee basis but excluded from seller revenue.
               </p>
             </div>
             <div class="tear"></div>
@@ -309,20 +320,17 @@ const freeListings = ebayFreeListingsPerMonth;
 
         <h3>Layer 4: Promoted listings (optional but often needed)</h3>
         <p>
-          eBay's Promoted Listings Standard lets you boost visibility by
-          setting an ad rate from 1% to 20% of the sale price. You only
-          pay the ad fee if the item sells through a promoted placement —
-          if it sells organically, you pay zero. Most sellers set 2–5%,
-          which is enough to appear in search boosts without eroding
-          margin. On a $50 item at 3%, that is $1.50 per promoted sale:
+          eBay's general campaign strategy applies the seller's ad rate when
+          the sale is attributed to a promoted listing. The fee uses the total
+          sale amount defined by eBay, including applicable shipping and tax,
+          rather than item price alone:
         </p>
         <div class="formula-box">
-          promoted_fee = price × ad_rate%  (only on promoted sales)
+          promoted_fee = total_sale_amount × ad_rate%  (only on attributed sales)
         </div>
         <p>
-          The calculator applies this to the item price only (not shipping),
-          matching eBay's actual calculation. Enter 0% if you do not use
-          promoted listings.
+          Enter the rate configured in your campaign, or 0% if the modeled
+          sale is not attributed to Promoted Listings.
         </p>
 
         <h3>Layer 5: Insertion fees and listing upgrades</h3>
@@ -341,9 +349,9 @@ const freeListings = ebayFreeListingsPerMonth;
           On a $50 electronics item with $10 shipping, 13.6% final value
           fee, $0.40 per-order, 3% promoted listings, $0 upgrades, $8
           shipping you pay, and $20 product cost: FVF $8.16 + per-order
-          $0.40 + promoted $1.50 = $10.06 in eBay fees. Net revenue after
-          eBay fees: $49.94. After product cost ($20) and shipping ($8),
-          profit is $21.94 — a 43.9% margin. Not bad, but 14.4% of revenue
+          $0.40 + promoted $1.80 = $10.36 in eBay fees. Net revenue after
+          eBay fees: $49.64. After product cost ($20) and shipping ($8),
+          profit is $21.64 — a 43.3% margin. Not bad, but a meaningful share of revenue
           went to eBay alone.
         </p>
         <p>
@@ -359,6 +367,15 @@ const freeListings = ebayFreeListingsPerMonth;
         </p>
       </div>
     </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap"><div class="prose">
+      <h2>Official source and verification date</h2>
+      <p>
+        Final value fee rates, high-value thresholds, per-order fees, and the 250 free monthly listings / $0.35 insertion fee were checked against eBay's <a href={ebayFeeSource} rel="nofollow">official US selling fees</a> and <a href={ebayStoreFeeSource} rel="nofollow">official Store selling fees</a> pages on <strong>{verifiedDate}</strong>. The Store toggle represents Basic or higher plans; Jewelry and Watches remain excluded because their tier structures do not fit this calculator's simplified model.
+      </p>
+    </div></div>
   </section>
 
   <section class="section--tight section">
@@ -465,6 +482,7 @@ const freeListings = ebayFreeListingsPerMonth;
   function recalc() {
     const price = read('price');
     const shipping = read('shipping');
+    const salesTax = read('sales-tax');
     const cost = read('cost');
     const fulfillment = read('fulfillment');
     const promotedPct = Math.min(read('promoted'), 20);
@@ -493,43 +511,44 @@ const freeListings = ebayFreeListingsPerMonth;
     const threshold = isStore ? storeThreshold : indThreshold;
     const overRate = isStore ? storeOver : indOver;
 
-    // eBay calculates FVF on total sale amount (price + shipping + tax)
-    // We simplify: total = price + shipping (tax is collected & remitted by eBay)
-    const totalSale = price + shipping;
+    // eBay calculates fees on total sale amount (price + shipping + sales tax).
+    // Tax is fee-bearing but is not seller revenue because eBay remits it.
+    const feeBasis = price + shipping + salesTax;
+    const sellerRevenue = price + shipping;
 
     // Final value fee (marginal: threshold portion at base rate, remainder
     // at the reduced over-rate)
     let fvf: number;
-    if (threshold !== null && overRate !== null && totalSale > threshold) {
-      fvf = threshold * (feeRate / 100) + (totalSale - threshold) * (overRate / 100);
-      const eff = (fvf / totalSale) * 100;
+    if (threshold !== null && overRate !== null && feeBasis > threshold) {
+      fvf = threshold * (feeRate / 100) + (feeBasis - threshold) * (overRate / 100);
+      const eff = (fvf / feeBasis) * 100;
       $('t-fvf-rate').textContent = `(${feeRate}% + ${overRate}% over $${threshold.toLocaleString('en-US')} · ${eff.toFixed(1)}% eff.)`;
     } else {
-      fvf = totalSale * (feeRate / 100);
+      fvf = feeBasis * (feeRate / 100);
       $('t-fvf-rate').textContent = `(${feeRate}%)`;
     }
 
     // Per-order fee
     let perOrderFee = 0;
     if (perOrderApplies) {
-      perOrderFee = totalSale <= 10 ? PER_ORDER_UNDER_10 : PER_ORDER_OVER_10;
+      perOrderFee = feeBasis <= 10 ? PER_ORDER_UNDER_10 : PER_ORDER_OVER_10;
     }
 
-    // Promoted listings fee (on item price only)
-    const promotedFee = price * (promotedPct / 100);
+    // General campaign ad fee uses eBay's total sale amount fee basis.
+    const promotedFee = feeBasis * (promotedPct / 100);
 
     // Total eBay fees
     const totalFees = fvf + perOrderFee + promotedFee + upgrades;
 
     // Net revenue after eBay fees
-    const netRevenue = totalSale - totalFees;
+    const netRevenue = sellerRevenue - totalFees;
 
     // Profit after product cost and shipping you pay
     const profit = netRevenue - cost - fulfillment;
     const margin = price > 0 ? (profit / price) * 100 : 0;
     const platformTake = price > 0 ? (totalFees / price) * 100 : 0;
 
-    $('r-total').textContent = money(totalSale);
+    $('r-total').textContent = money(feeBasis);
     $('r-fvf').textContent = `−${money(fvf)}`;
     $('r-perorder').textContent = `−${money(perOrderFee)}`;
     $('r-promoted').textContent = `−${money(promotedFee)}`;
@@ -565,7 +584,7 @@ const freeListings = ebayFreeListingsPerMonth;
     }
   }
 
-  ['price', 'shipping', 'cost', 'fulfillment', 'promoted', 'upgrades', 'category', 'store-sub'].forEach(
+  ['price', 'shipping', 'sales-tax', 'cost', 'fulfillment', 'promoted', 'upgrades', 'category', 'store-sub'].forEach(
     (id) => $(id).addEventListener('input', recalc)
   );
 
@@ -573,7 +592,7 @@ const freeListings = ebayFreeListingsPerMonth;
   copyBtn.addEventListener('click', async () => {
     const lines = [
       'eBay profit (emallsoon.com)',
-      `Total sale amount:   ${$('r-total').textContent}`,
+      `Fee basis incl. tax: ${$('r-total').textContent}`,
       `Final value fee:     ${$('r-fvf').textContent}`,
       `Per-order fee:       ${$('r-perorder').textContent}`,
       `Promoted listings:   ${$('r-promoted').textContent}`,

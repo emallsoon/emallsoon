@@ -17,6 +17,9 @@ const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
 const title = 'Etsy Fee Calculator — Listing, Transaction & Payment Fees | emallsoon';
 const description =
   'Free Etsy fee calculator. Add the $0.20 listing fee, 6.5% transaction fee, payment processing, and Offsite Ads to see real profit per sale. No signup.';
+const etsyFeeSource = 'https://help.etsy.com/hc/en-us/articles/115014483627-What-are-the-Fees-and-Taxes-for-Selling-on-Etsy';
+const etsyPolicySource = 'https://www.etsy.com/legal/fees/';
+const verifiedDate = '2026-11-12';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
@@ -46,7 +49,7 @@ const faqs = [
   },
   {
     q: 'How is the 6.5% transaction fee calculated?',
-    a: 'It applies to the order total including the shipping you charge and gift wrap, plus sales tax where applicable — not just the item price. Free-shipping listings therefore pay the fee on the full bundled price either way.',
+    a: 'It applies to the order total including the shipping you charge and gift wrap — not just the item price. Etsy lists payment processing separately; in the US, that processing base can also include sales tax if you charge tax on the listing. Free-shipping listings therefore pay the transaction fee on the full bundled item price either way.',
   },
   {
     q: 'When do Offsite Ads fees apply?',
@@ -155,7 +158,7 @@ const faqJsonLd = {
                 </div>
               </div>
               <div class="field">
-                <label for="listing">Listing fee (per item)</label>
+                <label for="listing">Listing/renewal fee allocated per item</label>
                 <div class="input-shell">
                   <span class="affix">$</span>
                   <input type="number" id="listing" value={etsyListingFee} min="0" step="0.05" inputmode="decimal" />
@@ -269,6 +272,15 @@ const faqJsonLd = {
         </p>
       </div>
     </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap"><div class="prose">
+      <h2>Official source and verification date</h2>
+      <p>
+        The $0.20 listing fee, 6.5% transaction fee, US Etsy Payments rate of 3% + $0.25, and Offsite Ads rules (15% below $10,000 in trailing 365-day sales, 12% at or above that threshold, capped at $100 per order) were checked against the <a href={etsyFeeSource} rel="nofollow">official Etsy Help Center fee summary</a> and <a href={etsyPolicySource} rel="nofollow">Etsy Fees &amp; Payments Policy</a> on <strong>{verifiedDate}</strong>. Country-specific processing and regulatory fees remain editable or excluded.
+      </p>
+    </div></div>
   </section>
 
   <section class="section--tight section">

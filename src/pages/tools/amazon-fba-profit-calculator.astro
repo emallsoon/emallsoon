@@ -2,7 +2,13 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ToolCard from '../../components/ToolCard.astro';
 import { tools } from '../../data/tools';
-import { referralPresets, referralDefault, fbaFeeDefault } from '../../data/fees';
+import {
+  referralPresets,
+  referralDefault,
+  amazonReferralMinimumDefault,
+  amazonPerItemFeeDefault,
+  fbaFeeDefault,
+} from '../../data/fees';
 
 const tool = tools.find((t) => t.slug === 'amazon-fba-profit-calculator')!;
 const related = tools.filter((t) => t.slug !== tool.slug);
@@ -10,6 +16,9 @@ const related = tools.filter((t) => t.slug !== tool.slug);
 const title = 'Amazon FBA Profit Calculator (Free, No Signup) | emallsoon';
 const description =
   'Free Amazon FBA profit calculator. Enter price, cost and fees to see profit per unit, margin, ROI and break-even — 2026 rates, no signup.';
+const amazonFeeSource = 'https://sellercentral.amazon.com/help/hub/reference/external/G200336920';
+const amazonRevenueCalculator = 'https://sellercentral.amazon.com/hz/fba/profitabilitycalculator/index?lang=en_US';
+const verifiedDate = '2026-11-12';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
@@ -47,7 +56,7 @@ const faqs = [
   },
   {
     q: 'Are the fee defaults current?',
-    a: 'They are editable estimates based on published US fee schedules, last verified November 5, 2026. Fulfillment fees vary by size tier and product price band (under $10 / $10–50 / over $50). A 3.5% fuel and logistics surcharge applies to FBA fulfillment fees, including Amazon’s October 15, 2026–January 14, 2027 holiday peak rates. Always verify the exact rate in Seller Central’s Revenue Calculator before committing to inventory.',
+    a: 'The referral presets and seller-plan fees were checked against Amazon’s US fee schedule on November 12, 2026. The FBA fulfillment field intentionally starts at $0 because the exact charge varies by size tier, weight, product price band, and season. A 3.5% fuel and logistics surcharge applies to FBA fulfillment fees, including Amazon’s October 15, 2026–January 14, 2027 holiday peak rates. Copy the exact per-unit fulfillment charge from Seller Central’s Revenue Calculator before using the result.',
   },
 ];
 
@@ -151,7 +160,23 @@ const faqJsonLd = {
                   <span class="affix">$</span>
                   <input type="number" id="fbafee" value={fbaFeeDefault} min="0" step="0.01" inputmode="decimal" />
                 </div>
-                <span class="hint">Varies by size tier &amp; price band; Amazon applies the 3.5% surcharge to the 2026 holiday peak fee</span>
+                <span class="hint">Required: copy the exact current fee from Amazon's Revenue Calculator</span>
+              </div>
+              <div class="field">
+                <label for="referral-min">Minimum referral fee</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="referral-min" value={amazonReferralMinimumDefault} min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">$0.30 for most listed categories; edit if yours differs</span>
+              </div>
+              <div class="field">
+                <label for="seller-fee">Per-item selling-plan fee</label>
+                <div class="input-shell">
+                  <span class="affix">$</span>
+                  <input type="number" id="seller-fee" value={amazonPerItemFeeDefault} min="0" step="0.01" inputmode="decimal" />
+                </div>
+                <span class="hint">Individual: $0.99/item; Professional: $0 here, allocate $39.99/month separately</span>
               </div>
               <div class="field">
                 <label for="storage">Monthly storage per unit</label>
@@ -190,6 +215,7 @@ const faqJsonLd = {
 
               <div class="rline"><span class="rl-label">Sale price</span><span class="rl-dots"></span><span class="rl-val" id="r-price">$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">Referral fee</span><span class="rl-dots"></span><span class="rl-val" id="r-referral">−$0.00</span></div>
+              <div class="rline rline--fee"><span class="rl-label">Selling-plan fee</span><span class="rl-dots"></span><span class="rl-val" id="r-seller-fee">−$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">FBA fulfillment</span><span class="rl-dots"></span><span class="rl-val" id="r-fbafee">−$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">Storage / unit</span><span class="rl-dots"></span><span class="rl-val" id="r-storage">−$0.00</span></div>
               <div class="rline rline--fee"><span class="rl-label">Inbound shipping</span><span class="rl-dots"></span><span class="rl-val" id="r-inbound">−$0.00</span></div>
@@ -212,9 +238,9 @@ const faqJsonLd = {
               <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
 
               <p class="disclaimer">
-                Fee defaults are estimates — verify current referral and
-                fulfillment rates in Seller Central. Storage per unit is an
-                allocation you control.
+                Referral presets are category shortcuts. Enter the exact FBA
+                fulfillment charge and selling-plan allocation from Seller
+                Central before relying on the result.
               </p>
             </div>
             <div class="tear"></div>
@@ -243,16 +269,17 @@ const faqJsonLd = {
 
         <h3>Profit per unit</h3>
         <div class="formula-box">
-          profit = price − (referral% × price) − fba_fee − storage − inbound − product_cost − other
+          profit = price − max(referral% × price, minimum_referral) − seller_plan_fee − fba_fee − storage − inbound − product_cost − other
         </div>
 
         <h3>Break-even price</h3>
         <p>
-          Because the referral fee is a percentage of price, break-even isn't
-          just "costs plus fees". Solve for the price where profit = 0:
+          Because the referral fee is a percentage of price with a category
+          minimum, break-even is solved using whichever referral charge is
+          higher at the resulting price:
         </p>
         <div class="formula-box">
-          break-even price = (fba_fee + storage + inbound + product_cost + other) ÷ (1 − referral%)
+          break-even price = fixed costs + max(minimum referral, referral% × break-even price)
         </div>
         <p>
           At a 15% referral fee, every $1 of fixed cost needs roughly $1.18 of
@@ -269,6 +296,15 @@ const faqJsonLd = {
         </p>
       </div>
     </div>
+  </section>
+
+  <section class="section--tight section">
+    <div class="wrap"><div class="prose">
+      <h2>Official source and verification date</h2>
+      <p>
+        Amazon selling-plan, referral-fee, minimum-fee, and refund-fee rules were checked against the <a href={amazonFeeSource} rel="nofollow">official US Selling on Amazon fee schedule</a> on <strong>{verifiedDate}</strong>. FBA fulfillment is not preset because Amazon varies it by dimensions, shipping weight, price band, and season; use the <a href={amazonRevenueCalculator} rel="nofollow">official Revenue Calculator</a> for the exact current charge.
+      </p>
+    </div></div>
   </section>
 
   <!-- ============ FAQ ============ -->
@@ -342,22 +378,28 @@ const faqJsonLd = {
     const inbound = read('inbound');
     const other = read('other');
     const referralPct = Math.min(read('referral'), 100);
+    const referralMin = read('referral-min');
+    const sellerFee = read('seller-fee');
     const fbaFee = read('fbafee');
     const storage = read('storage');
     const units = read('units');
 
-    const referral = price * (referralPct / 100);
-    const totalFees = referral + fbaFee + storage;
+    const referral = price > 0 ? Math.max(price * (referralPct / 100), referralMin) : 0;
+    const totalFees = referral + sellerFee + fbaFee + storage;
     const cashCost = cost + inbound + other;
     const profit = price - totalFees - cashCost;
     const margin = price > 0 ? (profit / price) * 100 : 0;
     const roi = cashCost > 0 ? (profit / cashCost) * 100 : 0;
+    const fixedBeforeReferral = sellerFee + fbaFee + storage + cashCost;
     const denom = 1 - referralPct / 100;
-    const breakEven = denom > 0 ? (fbaFee + storage + cashCost) / denom : 0;
+    const pctBreakEven = denom > 0 ? fixedBeforeReferral / denom : 0;
+    const minBreakEven = fixedBeforeReferral + referralMin;
+    const breakEven = pctBreakEven * (referralPct / 100) >= referralMin ? pctBreakEven : minBreakEven;
     const monthly = profit * units;
 
     $('r-price').textContent = money(price);
     $('r-referral').textContent = `−${money(referral)}`;
+    $('r-seller-fee').textContent = `−${money(sellerFee)}`;
     $('r-fbafee').textContent = `−${money(fbaFee)}`;
     $('r-storage').textContent = `−${money(storage)}`;
     $('r-inbound').textContent = `−${money(inbound)}`;
@@ -398,7 +440,7 @@ const faqJsonLd = {
   }
 
   // bind
-  ['price', 'cost', 'inbound', 'other', 'referral', 'fbafee', 'storage', 'units'].forEach(
+  ['price', 'cost', 'inbound', 'other', 'referral', 'referral-min', 'seller-fee', 'fbafee', 'storage', 'units'].forEach(
     (id) => $(id).addEventListener('input', recalc)
   );
 
@@ -426,6 +468,7 @@ const faqJsonLd = {
       'Amazon FBA unit economics (emallsoon.com)',
       `Sale price:        ${$('r-price').textContent}`,
       `Referral fee:      ${$('r-referral').textContent}`,
+      `Selling-plan fee:  ${$('r-seller-fee').textContent}`,
       `FBA fulfillment:   ${$('r-fbafee').textContent}`,
       `Storage/unit:      ${$('r-storage').textContent}`,
       `Inbound shipping:  ${$('r-inbound').textContent}`,

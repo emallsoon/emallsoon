@@ -7,10 +7,10 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-11-05
+ * Last verified against official sources: 2026-11-12
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
  *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17).
- *    2026-11-05 re-verified: holiday peak fulfillment fees apply
+ *    2026-11-12 re-verified: holiday peak fulfillment fees apply
  *    2026-10-15 → 2027-01-14. Amazon's official holiday rate card states
  *    that the 3.5% fuel & logistics surcharge also applies to peak fees.
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced.
@@ -18,14 +18,17 @@
  *    (official pricing page now lists 0.6%; Basic 2% / Grow 1% unchanged).
  *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30. Re-verified 2026-10-26, no change.
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
- *    + Fees & Payments Policy (verified 2026-11-05; 2026-10-26 before that).
+ *    + Fees & Payments Policy (verified 2026-11-12; 2026-11-05 before that).
  *    $0.20 / 6.5% / 3% + $0.25 / Offsite Ads 15%–12% capped $100 all unchanged.
  *    NOTE: policy now mentions a one-time shop set-up fee ("varies by location")
  *    with no published amount — not modeled, informational only.
- *  - TikTok Shop: TikTok Shop US Seller Center fee schedule (verified 2026-11-05;
- *    official category table revised 2026-05-14 still shows 6%).
+ *  - TikTok Shop: re-checked 2026-11-12. TikTok's public Seller Academy search
+ *    exposes a later "Referral Fee Update starting August 4th 2026," while the
+ *    previously cited category table now returns 404. Category presets and the
+ *    refund-administration formula were removed rather than keep an unverified
+ *    rate. Sellers must enter the current rate/cost from Seller Center.
  *  - eBay: eBay help "Selling fees" (id=4822) + "Store selling fees" (id=4809),
- *    verified 2026-11-05. Broad category presets are labelled "Most" where
+ *    verified 2026-11-12. Broad category presets are labelled "Most" where
  *    official subcategory exceptions exist. Jewelry and Watches are omitted
  *    because their current high-value structures do not fit this calculator's
  *    simple portion-above-threshold model.
@@ -46,6 +49,12 @@ export const referralPresets: ReferralPreset[] = [
 /** default referral fee percentage */
 export const referralDefault = 15;
 
+/** Most listed Amazon US categories use a $0.30 minimum referral fee. */
+export const amazonReferralMinimumDefault = 0.3;
+
+/** Individual plan is $0.99/item; Professional sellers should leave this at $0. */
+export const amazonPerItemFeeDefault = 0;
+
 /**
  * Default FBA fulfillment fee per unit (US, standard size, approx.).
  * 2026 rate card varies by size tier AND product price band
@@ -57,9 +66,11 @@ export const referralDefault = 15;
  * surcharge applies to the fulfillment fee. Holiday PEAK fulfillment
  * fees apply 2026-10-15 → 2027-01-14, and Amazon's official rate card
  * states that the 3.5% surcharge applies to those peak fees as well.
- * Verified 2026-11-05.
+ * Verified 2026-11-12. No single default can represent the current matrix,
+ * especially during the 2026-10-15 → 2027-01-14 peak period, so the calculator
+ * deliberately starts at $0 and requires the seller's Revenue Calculator value.
  */
-export const fbaFeeDefault = 5.5;
+export const fbaFeeDefault = 0;
 
 /* ---------- Shopify ---------- */
 export interface ShopifyPlan {
@@ -102,42 +113,17 @@ export const offsiteAdsOptions: OffsiteAdsOption[] = [
 
 /**
  * Offsite Ads fee is capped at $100 per order (US), regardless of
- * the 15% / 12% rate. Source: Etsy Help Center, verified 2026-08-31.
+ * the 15% / 12% rate. Source: Etsy Help Center, verified 2026-11-12.
  */
 export const offsiteAdsCap = 100;
 
 /* ---------- TikTok Shop (US) ---------- */
-export interface TikTokCategory {
-  id: string;
-  label: string;
-  pct: number;
-}
-
 /**
- * TikTok Shop US referral fees (2026).
- * The referral fee is a single unified charge that ALREADY includes
- * payment processing — there is no separate transaction or processing fee.
- * ⚠️ UNCONFIRMED: some seller publications report the standard US rate rose
- * to 8% (most non-food categories) effective 2026-08-04, but TikTok's own
- * Seller University fee page (revised 2026-05-14, re-checked 2026-11-05)
- * still lists 6%. Kept at the officially published 6% — re-check Seller
- * Center statements before trusting either figure. NEEDS HUMAN CONFIRMATION.
- * Source: TikTok Shop US Seller Center, verified 2026-11-05.
+ * Deliberately no preset: TikTok's publicly indexed August 4, 2026 fee update
+ * supersedes the older category table, but the live public article currently
+ * returns 404. Enter the current category rate shown in Seller Center.
  */
-export const tiktokCategories: TikTokCategory[] = [
-  { id: 'most', label: 'Most categories · 6%', pct: 6 },
-  { id: 'fine-jewelry', label: 'Selected fine jewelry categories · 5%', pct: 5 },
-];
-
-/** Default referral fee percentage */
-export const tiktokReferralDefault = 6;
-
-/**
- * Refund administration fee: 20% of the referral fee, capped at $5 per SKU.
- * Applied when a buyer returns an item.
- */
-export const tiktokRefundAdminPct = 20;
-export const tiktokRefundAdminCap = 5;
+export const tiktokReferralDefault = 0;
 
 /* ---------- eBay (US) ---------- */
 export interface EbayCategory {
@@ -175,7 +161,7 @@ export interface EbayCategory {
  *  - Exceptions: Auto Parts stores threshold $1,000; Coins & Paper Money stores
  *    threshold $4,000; Sneakers are flat with no per-order fee.
  * Source: eBay help "Selling fees" (id=4822) + "Store selling fees"
- * (id=4809), verified 2026-11-05.
+ * (id=4809), verified 2026-11-12.
  */
 export const ebayCategories: EbayCategory[] = [
   { id: 'most', label: 'Most categories', individualPct: 13.6, storePct: 12.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },

@@ -12,7 +12,6 @@ import {
   etsyProcessingFlat,
   shopifyProcessingPct,
   shopifyProcessingFlat,
-  tiktokReferralDefault,
 } from '../../data/fees';
 
 const tool = tools.find((t) => t.slug === 'platform-fee-comparison')!;
@@ -46,11 +45,11 @@ const breadcrumbJsonLd = {
 const faqs = [
   {
     q: 'Which e-commerce platform has the lowest fees?',
-    a: 'It depends on your product and how you drive traffic. By platform fee alone, Shopify is cheapest at ~2.9% + $0.30 per order (using Shopify Payments) — but you must drive your own traffic, which costs $5–20 per order in ads. TikTok Shop has the lowest marketplace referral fee at 6% (including payment processing), but requires affiliate commissions (5–15%) and ad spend. Amazon FBA costs 15% referral + $5.50 fulfillment. eBay charges 13.6% + $0.40 per order. Etsy runs ~9.5% + $0.45. Use the comparison tool to see which platform nets you the most profit for your specific price point.',
+    a: 'It depends on your product, category, fulfillment profile, and traffic costs. This comparison keeps stable baseline rates where the official rules are simple, but requires you to enter the exact Amazon FBA fulfillment charge and TikTok Shop referral/affiliate rates from your own account. Use the individual calculators for category-specific and tiered fees.',
   },
   {
     q: 'Is Amazon FBA or eBay more profitable?',
-    a: 'For most products under $50, Amazon FBA is more profitable despite higher fees, because Amazon drives organic traffic (no ad spend required) and Prime conversion rates are 2–4x higher. On a $30 product: Amazon nets ~$15.20 after 15% referral + $5.50 FBA + $9 cost; eBay nets ~$13.94 after 13.6% FVF + $0.40 + 3% promoted + $9 cost + $4 shipping. But for used items, collectibles, and electronics over $150, eBay often wins due to lower category rates (6.7% for guitars, 8% for sneakers). The comparison tool shows the exact breakdown for your numbers.',
+    a: 'The answer depends on the exact FBA fulfillment fee, eBay category rate, shipping, promoted-listing spend, and product cost. Enter your Amazon Revenue Calculator charge rather than relying on a generic FBA estimate, then use the eBay calculator for category and high-value tiers.',
   },
   {
     q: 'Why does Shopify look so profitable in the comparison?',
@@ -62,7 +61,7 @@ const faqs = [
   },
   {
     q: 'Can I compare more than the default fees?',
-    a: 'The comparison tool uses each platform\'s default rates (most common category, standard plan). For detailed category-specific calculations — like Amazon grocery at 8%, eBay sneakers at 8%, or Etsy with mandatory Offsite Ads — use the individual platform calculators linked below each comparison row. The comparison tool is designed for a quick side-by-side snapshot; the individual calculators handle edge cases and category-specific rates.',
+    a: 'Yes. Amazon FBA fulfillment and TikTok referral, affiliate, ad, and fulfillment inputs are manual. For detailed category-specific calculations — such as Amazon grocery, eBay sneakers, or Etsy Offsite Ads — use the individual platform calculators linked below each comparison row.',
   },
   {
     q: 'Which platform should I sell on?',
@@ -95,8 +94,6 @@ const feeConfig = {
   etsyProcessingFlat,
   shopifyProcPct: shopifyProcessingPct,
   shopifyProcFlat: shopifyProcessingFlat,
-  tiktokReferralPct: tiktokReferralDefault,
-  tiktokAffiliatePct: 5,
 };
 ---
 
@@ -164,9 +161,9 @@ const feeConfig = {
                 <label for="amazon-fba">Amazon FBA fulfillment</label>
                 <div class="input-shell">
                   <span class="affix">$</span>
-                  <input type="number" id="amazon-fba" value="5.50" min="0" step="0.01" inputmode="decimal" />
+                  <input type="number" id="amazon-fba" value="0" min="0" step="0.01" inputmode="decimal" />
                 </div>
-                <span class="hint">FBA pick-pack-ship (replaces your shipping)</span>
+                <span class="hint">Required: exact current charge from Amazon Revenue Calculator</span>
               </div>
               <div class="field">
                 <label for="shopify-ads">Shopify ad cost / order</label>
@@ -175,6 +172,22 @@ const feeConfig = {
                   <input type="number" id="shopify-ads" value="10.00" min="0" step="0.50" inputmode="decimal" />
                 </div>
                 <span class="hint">No marketplace traffic — you drive it</span>
+              </div>
+              <div class="field">
+                <label for="tiktok-referral">TikTok referral fee</label>
+                <div class="input-shell">
+                  <input type="number" id="tiktok-referral" value="0" min="0" max="100" step="0.1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">Required: current category rate from Seller Center</span>
+              </div>
+              <div class="field">
+                <label for="tiktok-affiliate">TikTok blended affiliate cost</label>
+                <div class="input-shell">
+                  <input type="number" id="tiktok-affiliate" value="0" min="0" max="100" step="0.1" inputmode="decimal" />
+                  <span class="affix">%</span>
+                </div>
+                <span class="hint">Commission × affiliate-attributed order share</span>
               </div>
               <div class="field">
                 <label for="tiktok-ads">TikTok ad cost / order</label>
@@ -203,9 +216,8 @@ const feeConfig = {
           <p class="disclaimer">
             Uses default rates: Amazon 15% referral, eBay 13.6% + $0.40 +
             3% promoted, Etsy $0.20 + 6.5% + 3% + $0.25, Shopify 2.9% + $0.30
-            (Shopify Payments), TikTok 6% + 5% affiliate + ads. Verify
-            exact rates on each platform — use the individual calculators for
-            category-specific fees.
+            (Shopify Payments). Amazon FBA and TikTok rates start at zero and
+            must be entered from the current official account tools before comparison.
           </p>
         </aside>
       </div>
@@ -228,14 +240,10 @@ const feeConfig = {
 
         <h3>Amazon FBA: the traffic tax</h3>
         <p>
-          Amazon charges 15% referral on most categories plus a $5–6 FBA
-          fulfillment fee per unit. That is 15–20% of revenue gone before
-          product cost. But Amazon brings the traffic — Prime members convert
-          at 2–4x the rate of independent stores, and you pay zero ad spend
-          for organic search placement. For products in the $20–50 range
-          where FBA fulfillment ($5.50) is less than your own shipping
-          ($8+), Amazon's total cost can actually be lower than eBay despite
-          the higher percentage.
+          Amazon charges a category referral fee and a separate FBA fulfillment
+          fee that varies by dimensions, shipping weight, product price band,
+          and season. The comparison leaves FBA at $0 until you enter the exact
+          current charge from Amazon's Revenue Calculator.
         </p>
 
         <h3>eBay: the middle ground</h3>
@@ -277,15 +285,11 @@ const feeConfig = {
 
         <h3>TikTok Shop: the discovery tax</h3>
         <p>
-          TikTok Shop's 6% referral fee (including payment processing) is
-          the lowest headline rate of any marketplace. But the real cost
-          includes affiliate commissions (5–15% on affiliate-driven sales),
-          ad spend ($4–10/order), and FBT fulfillment ($4). The total cost
-          stack runs 25–45% of revenue — higher than Amazon for most
-          products. TikTok Shop works best for visual, impulse-buy products
-          under $50 where creator content drives virality — the traffic is
-          free if your content goes viral, but the affiliate and ad costs
-          are the price of engineering virality.
+          TikTok Shop referral rates and category treatment can change by
+          effective date. This comparison no longer supplies a universal
+          referral or affiliate preset: enter the current referral percentage
+          from Seller Center and your own blended affiliate, ad, and fulfillment
+          costs before comparing the result.
         </p>
 
         <h3>Reading the comparison</h3>
@@ -499,8 +503,6 @@ const feeConfig = {
     etsyProcessingFlat: number;
     shopifyProcPct: number;
     shopifyProcFlat: number;
-    tiktokReferralPct: number;
-    tiktokAffiliatePct: number;
   };
 
   const AMZ_REFERRAL = CFG.amazonReferralPct / 100;
@@ -513,8 +515,6 @@ const feeConfig = {
   const ETSY_PROC_FLAT = CFG.etsyProcessingFlat;
   const SHO_PROC = CFG.shopifyProcPct / 100;
   const SHO_PROC_FLAT = CFG.shopifyProcFlat;
-  const TT_REFERRAL = CFG.tiktokReferralPct / 100;
-  const TT_AFFILIATE = CFG.tiktokAffiliatePct / 100;
 
   interface Platform {
     id: string;
@@ -533,6 +533,8 @@ const feeConfig = {
     const shipping = read('shipping');
     const amazonFba = read('amazon-fba');
     const shopifyAds = read('shopify-ads');
+    const tiktokReferralPct = Math.min(read('tiktok-referral'), 100) / 100;
+    const tiktokAffiliatePct = Math.min(read('tiktok-affiliate'), 100) / 100;
     const tiktokAds = read('tiktok-ads');
     const tiktokFbt = read('tiktok-fbt');
 
@@ -558,9 +560,9 @@ const feeConfig = {
     const shoFees = shoProc + shopifyAds;
     const shoProfit = price - shoFees - cost - shipping;
 
-    // TikTok Shop: 6% referral + 5% affiliate + ads + FBT
-    const ttReferral = price * TT_REFERRAL;
-    const ttAffiliate = price * TT_AFFILIATE;
+    // TikTok Shop: seller-entered referral + blended affiliate + ads + FBT
+    const ttReferral = price * tiktokReferralPct;
+    const ttAffiliate = price * tiktokAffiliatePct;
     const ttFees = ttReferral + ttAffiliate + tiktokAds + tiktokFbt;
     const ttProfit = price - ttFees - cost;
 
@@ -610,7 +612,7 @@ const feeConfig = {
         name: 'TikTok Shop',
         href: '/tools/tiktok-shop-fee-calculator/',
         fees: ttFees,
-        feeBreakdown: `Referral ${pct(TT_REFERRAL * 100)} (${money(ttReferral)}) + affiliate ${pct(TT_AFFILIATE * 100)} (${money(ttAffiliate)}) + ads (${money(tiktokAds)}) + FBT (${money(tiktokFbt)})`,
+        feeBreakdown: `Referral ${pct(tiktokReferralPct * 100)} (${money(ttReferral)}) + affiliate ${pct(tiktokAffiliatePct * 100)} (${money(ttAffiliate)}) + ads (${money(tiktokAds)}) + FBT (${money(tiktokFbt)})`,
         profit: ttProfit,
         margin: price > 0 ? (ttProfit / price) * 100 : 0,
         platformTake: price > 0 ? (ttFees / price) * 100 : 0,
@@ -657,7 +659,7 @@ const feeConfig = {
   }
 
   // Wire up all inputs
-  ['price', 'cost', 'shipping', 'amazon-fba', 'shopify-ads', 'tiktok-ads', 'tiktok-fbt'].forEach(
+  ['price', 'cost', 'shipping', 'amazon-fba', 'shopify-ads', 'tiktok-referral', 'tiktok-affiliate', 'tiktok-ads', 'tiktok-fbt'].forEach(
     (id) => $(id).addEventListener('input', render)
   );
 
