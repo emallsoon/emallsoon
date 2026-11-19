@@ -10,8 +10,8 @@ const related = tools.filter((t) => t.slug !== tool.slug).slice(0, 3);
 const title = 'TikTok Shop Fee & Profit Calculator — Real Profit Per Order | emallsoon';
 const description =
   'Free TikTok Shop fee calculator. Enter your current Seller Center referral rate, affiliate commission, ad spend, and costs to see profit per order. No signup.';
-const tiktokAcademySource = 'https://seller-us.tiktok.com/university/home?identity=1';
-const verifiedDate = '2026-11-12';
+const tiktokAcademySource = 'https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682';
+const verifiedDate = '2026-11-19';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
@@ -37,11 +37,11 @@ const breadcrumbJsonLd = {
 const faqs = [
   {
     q: 'How much does TikTok Shop charge sellers?',
-    a: 'TikTok Shop US referral fees can change by effective date and category. TikTok’s public Seller Academy search currently exposes an August 4, 2026 referral-fee update, while the older public category table previously used by this calculator now returns 404. To avoid presenting an unverified rate, the calculator starts at 0% and requires the current rate shown in your Seller Center fee statement or category policy.',
+    a: 'TikTok Shop US referral fees vary by category and tier. The official category table checked on November 19, 2026 lists 6% for most categories, 5% for specified jewelry and pre-owned categories, and a 3% rate on the portion above $10,000 for listed Collectibles and Pre-Owned categories. This calculator starts at an editable 6%; confirm your exact category in Seller Center.',
   },
   {
-    q: 'Why is there no default TikTok Shop referral rate?',
-    a: 'A single preset cannot safely represent TikTok Shop’s current category and effective-date rules, and the newest publicly indexed official update is not available as a live public article. Entering the rate from Seller Center is more reliable than using a stale universal percentage.',
+    q: 'Why is the default TikTok Shop referral rate 6%?',
+    a: 'TikTok Shop’s live US category table lists 6% for most categories, so 6% is a useful editable starting point. It is not universal: specified categories use 5%, and some Collectibles and Pre-Owned sales use a lower rate on the portion above $10,000. Always match the calculator to your Seller Center category.',
   },
   {
     q: 'How should I enter affiliate commission?',
@@ -111,7 +111,7 @@ const faqJsonLd = {
                   <input type="number" id="referral" value={tiktokReferralDefault} min="0" max="100" step="0.1" inputmode="decimal" />
                   <span class="affix">%</span>
                 </div>
-                <span class="hint">Required: copy your category rate from Seller Center</span>
+                <span class="hint">6% is the most-category starting point; confirm yours in Seller Center</span>
               </div>
               <div class="field">
                 <label for="shipping">Shipping charged to buyer</label>
@@ -214,9 +214,9 @@ const faqJsonLd = {
               <button type="button" class="copy-btn" id="copy-btn">Copy results</button>
 
               <p class="disclaimer">
-                Referral and returns fields deliberately have no marketplace
-                preset. Copy current values from Seller Center and your own
-                statements. Affiliate commission is blended by the share you enter.
+                The 6% referral rate is an editable most-category starting point,
+                not a universal rate. Confirm the category and fee basis in Seller
+                Center. Affiliate commission is blended by the share you enter.
               </p>
             </div>
             <div class="tear"></div>
@@ -232,10 +232,11 @@ const faqJsonLd = {
         <p class="eyebrow">How the math works</p>
         <h2>Use account-specific rates, then stack every order cost</h2>
         <p>
-          TikTok Shop fee schedules can change by category and effective date.
-          This calculator therefore treats the referral rate as an account input,
-          not a universal platform constant. Copy the percentage shown in Seller
-          Center, then add the costs that apply to your own order flow.
+          TikTok Shop fee schedules vary by category and tier. The official US
+          table lists 6% for most categories, so that is the editable starting
+          point here rather than a universal platform constant. Confirm the
+          percentage shown in Seller Center, then add the costs that apply to
+          your own order flow.
         </p>
         <div class="formula-box">
           referral = (price + shipping_to_buyer) × referral_rate%
@@ -274,7 +275,7 @@ const faqJsonLd = {
     <div class="wrap"><div class="prose">
       <h2>Official source and verification date</h2>
       <p>
-        TikTok Shop's official Seller Academy was re-checked on <strong>{verifiedDate}</strong>. Its public search exposes a later “Referral Fee Update starting August 4th 2026,” but the previously cited public category-fee article now returns 404. Because the current category table and refund formula could not be verified on a live official page, this calculator no longer supplies either preset. Confirm both in <a href={tiktokAcademySource} rel="nofollow">TikTok Shop Seller Academy / Seller Center</a> before pricing.
+        TikTok Shop's live <a href={tiktokAcademySource} rel="nofollow">official US category-fee table</a> was re-checked on <strong>{verifiedDate}</strong>. It lists 6% for most categories, 5% for specified jewelry and Pre-Owned categories, and 3% on the portion above $10,000 for listed Collectibles and Pre-Owned categories. The official formula also depends on customer payment, platform discount and tax, so this tool remains an estimate: confirm the rate and fee basis against Seller Center before pricing.
       </p>
     </div></div>
   </section>

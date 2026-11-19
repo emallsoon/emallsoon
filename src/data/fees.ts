@@ -7,10 +7,10 @@
  * here when platforms revise their fee schedules (check Seller Central,
  * Shopify pricing pages, and Etsy's fee help center).
  *
- * Last verified against official sources: 2026-11-12
+ * Last verified against official sources: 2026-11-19
  *  - Amazon: Seller Central "2026 US Referral and FBA fee changes" (effective 2026-01-15),
  *    plus the 3.5% fuel & logistics surcharge on FBA fulfillment fees (effective 2026-04-17).
- *    2026-11-12 re-verified: holiday peak fulfillment fees apply
+ *    2026-11-19 re-verified: holiday peak fulfillment fees apply
  *    2026-10-15 → 2027-01-14. Amazon's official holiday rate card states
  *    that the 3.5% fuel & logistics surcharge also applies to peak fees.
  *  - Shopify: shopify.com/pricing (US) — plans Basic / Grow / Advanced.
@@ -18,17 +18,18 @@
  *    (official pricing page now lists 0.6%; Basic 2% / Grow 1% unchanged).
  *    Card rates unchanged: 2.9% / 2.7% / 2.5% + $0.30. Re-verified 2026-10-26, no change.
  *  - Etsy: Etsy Help Center "What are the Fees and Taxes for Selling on Etsy"
- *    + Fees & Payments Policy (verified 2026-11-12; 2026-11-05 before that).
+ *    + Fees & Payments Policy (verified 2026-11-19; 2026-11-12 before that).
  *    $0.20 / 6.5% / 3% + $0.25 / Offsite Ads 15%–12% capped $100 all unchanged.
  *    NOTE: policy now mentions a one-time shop set-up fee ("varies by location")
  *    with no published amount — not modeled, informational only.
- *  - TikTok Shop: re-checked 2026-11-12. TikTok's public Seller Academy search
- *    exposes a later "Referral Fee Update starting August 4th 2026," while the
- *    previously cited category table now returns 404. Category presets and the
- *    refund-administration formula were removed rather than keep an unverified
- *    rate. Sellers must enter the current rate/cost from Seller Center.
+ *  - TikTok Shop: re-checked 2026-11-19. The live official category table
+ *    (updated 2026-10-08) lists 6% for most categories, 5% for specified
+ *    jewelry and pre-owned categories, and 3% on the portion above $10,000
+ *    for listed Collectibles / Pre-Owned categories. The calculator uses 6%
+ *    as an editable "most categories" starting point; sellers must confirm
+ *    their exact category and statement basis in Seller Center.
  *  - eBay: eBay help "Selling fees" (id=4822) + "Store selling fees" (id=4809),
- *    verified 2026-11-12. Broad category presets are labelled "Most" where
+ *    verified 2026-11-19. Broad category presets are labelled "Most" where
  *    official subcategory exceptions exist. Jewelry and Watches are omitted
  *    because their current high-value structures do not fit this calculator's
  *    simple portion-above-threshold model.
@@ -66,7 +67,7 @@ export const amazonPerItemFeeDefault = 0;
  * surcharge applies to the fulfillment fee. Holiday PEAK fulfillment
  * fees apply 2026-10-15 → 2027-01-14, and Amazon's official rate card
  * states that the 3.5% surcharge applies to those peak fees as well.
- * Verified 2026-11-12. No single default can represent the current matrix,
+ * Verified 2026-11-19. No single default can represent the current matrix,
  * especially during the 2026-10-15 → 2027-01-14 peak period, so the calculator
  * deliberately starts at $0 and requires the seller's Revenue Calculator value.
  */
@@ -113,17 +114,17 @@ export const offsiteAdsOptions: OffsiteAdsOption[] = [
 
 /**
  * Offsite Ads fee is capped at $100 per order (US), regardless of
- * the 15% / 12% rate. Source: Etsy Help Center, verified 2026-11-12.
+ * the 15% / 12% rate. Source: Etsy Help Center, verified 2026-11-19.
  */
 export const offsiteAdsCap = 100;
 
 /* ---------- TikTok Shop (US) ---------- */
 /**
- * Deliberately no preset: TikTok's publicly indexed August 4, 2026 fee update
- * supersedes the older category table, but the live public article currently
- * returns 404. Enter the current category rate shown in Seller Center.
+ * Editable starting point only. TikTok Shop's live US category table (updated
+ * 2026-10-08) lists 6% for most categories, with 5% and high-value 3% tiers for
+ * specified categories. Confirm the exact category rate in Seller Center.
  */
-export const tiktokReferralDefault = 0;
+export const tiktokReferralDefault = 6;
 
 /* ---------- eBay (US) ---------- */
 export interface EbayCategory {
@@ -161,7 +162,7 @@ export interface EbayCategory {
  *  - Exceptions: Auto Parts stores threshold $1,000; Coins & Paper Money stores
  *    threshold $4,000; Sneakers are flat with no per-order fee.
  * Source: eBay help "Selling fees" (id=4822) + "Store selling fees"
- * (id=4809), verified 2026-11-12.
+ * (id=4809), verified 2026-11-19.
  */
 export const ebayCategories: EbayCategory[] = [
   { id: 'most', label: 'Most categories', individualPct: 13.6, storePct: 12.7, perOrderFeeApplies: true, individualThreshold: 7500, individualOverPct: 2.35, storeThreshold: 2500, storeOverPct: 2.35 },
