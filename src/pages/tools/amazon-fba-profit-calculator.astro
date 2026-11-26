@@ -18,7 +18,7 @@ const description =
   'Free Amazon FBA profit calculator. Enter price, cost and fees to see profit per unit, margin, ROI and break-even — 2026 rates, no signup.';
 const amazonFeeSource = 'https://sellercentral.amazon.com/help/hub/reference/external/G200336920';
 const amazonRevenueCalculator = 'https://sellercentral.amazon.com/hz/fba/profitabilitycalculator/index?lang=en_US';
-const verifiedDate = '2026-11-19';
+const verifiedDate = '2026-11-26';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
@@ -56,7 +56,11 @@ const faqs = [
   },
   {
     q: 'Are the fee defaults current?',
-    a: 'The referral presets and seller-plan fees were checked against Amazon’s US fee schedule on November 12, 2026. The FBA fulfillment field intentionally starts at $0 because the exact charge varies by size tier, weight, product price band, and season. A 3.5% fuel and logistics surcharge applies to FBA fulfillment fees, including Amazon’s October 15, 2026–January 14, 2027 holiday peak rates. Copy the exact per-unit fulfillment charge from Seller Central’s Revenue Calculator before using the result.',
+    a: 'The referral presets and seller-plan fees were checked against Amazon’s US fee schedule on November 26, 2026. The FBA fulfillment field intentionally starts at $0 because the exact charge varies by size tier, weight, product price band, and season. A 3.5% fuel and logistics surcharge applies to FBA fulfillment fees, including Amazon’s October 15, 2026–January 14, 2027 holiday peak rates. Copy the exact per-unit fulfillment charge from Seller Central’s Revenue Calculator before using the result.',
+  },
+  {
+    q: 'Does the referral field handle Amazon’s tiered 3D-printer fee?',
+    a: 'Not automatically. Amazon changed the US 3D Printers category on November 5, 2026 to 12% on the first $200 of the sale price and 5% on the portion above $200. A single percentage field cannot represent that mixed tier exactly. Calculate the referral charge from the official schedule or Revenue Calculator, then convert it to an effective percentage for this estimate.',
   },
 ];
 
@@ -302,7 +306,7 @@ const faqJsonLd = {
     <div class="wrap"><div class="prose">
       <h2>Official source and verification date</h2>
       <p>
-        Amazon selling-plan, referral-fee, minimum-fee, and refund-fee rules were checked against the <a href={amazonFeeSource} rel="nofollow">official US Selling on Amazon fee schedule</a> on <strong>{verifiedDate}</strong>. FBA fulfillment is not preset because Amazon varies it by dimensions, shipping weight, price band, and season; use the <a href={amazonRevenueCalculator} rel="nofollow">official Revenue Calculator</a> for the exact current charge.
+        Amazon selling-plan, referral-fee, minimum-fee, and refund-fee rules were checked against the <a href={amazonFeeSource} rel="nofollow">official US Selling on Amazon fee schedule</a> on <strong>{verifiedDate}</strong>. The November 5, 2026 tiered 3D-printer fee is documented above rather than simplified into an inaccurate flat preset. FBA fulfillment is not preset because Amazon varies it by dimensions, shipping weight, price band, and season; use the <a href={amazonRevenueCalculator} rel="nofollow">official Revenue Calculator</a> for the exact current charge.
       </p>
     </div></div>
   </section>
